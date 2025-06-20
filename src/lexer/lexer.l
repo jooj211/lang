@@ -10,19 +10,19 @@
 void lexerError(const char *msg, int line, int col);
 int yylineno = 1;
 int yycolumn = 1;
-
-}%
+%}
 
 DIGIT           [0-9]
 LETTER_LOWER    [a-z]
 LETTER_UPPER    [A-Z]
 ID_CONT         [a-zA-Z0-9_]
-COMMENT_LINE    "--".*
-COMMENT_BLOCK   "\{\-"(.|\n)*"-\}"
+
+COMMENT_LINE    --.*
+COMMENT_BLOCK   \\{-(.|\\n)*-\\}
 WHITESPACE      [ \t\r\n]+
-CHAR_ESC        \\(n|t|\\|'|\"|[0-7]{1,3})
-CHAR_LITERAL    \'(\\.|[^\\'])\'
-FLOAT_LIT       ({DIGIT}+"."{DIGIT}*|"."{DIGIT}+)
+CHAR_ESC        \\\\(n|t|\\\\|'|\\"|[0-7]{1,3})
+CHAR_LITERAL    \\'(\\\\.|[^\\\\'])\\'
+FLOAT_LIT       ({DIGIT}+\\.{DIGIT}*|\\.{DIGIT}+)
 INT_LIT         {DIGIT}+
 ID              {LETTER_LOWER}{ID_CONT}*
 TYPE_ID         {LETTER_UPPER}{ID_CONT}*
@@ -30,36 +30,32 @@ TYPE_ID         {LETTER_UPPER}{ID_CONT}*
 %%
 
 {WHITESPACE}         {
-                        /* Atualiza número de linha/coluna ao encontrar newline */
                         for (char c : yytext) {
                             if (c == '\n') { yylineno++; yycolumn = 1; }
                             else yycolumn++;
                         }
                      }
 
-{COMMENT_LINE}        { /* ignora comentário de linha: nada a retornar */ }
+{COMMENT_LINE}        { /* ignora */ }
 {COMMENT_BLOCK}       {
-                        /* contar quebras de linha dentro do bloco */
                         for (char c : yytext) if (c=='\n') { yylineno++; yycolumn = 1; }
                      }
 
-/* Literais numéricos */
 {FLOAT_LIT}           {
                         yylval.stringVal = new std::string(yytext);
                         return FLOAT_LITERAL;
                      }
+
 {INT_LIT}             {
                         yylval.stringVal = new std::string(yytext);
                         return INT_LITERAL;
                      }
 
-/* Literais de caractere */
 {CHAR_LITERAL}        {
                         yylval.stringVal = new std::string(yytext);
                         return CHAR_LITERAL;
                      }
 
-/* Identificadores e palavras-reservadas */
 {ID}                  {
                         std::string s(yytext);
                         if (s == "true" || s == "false") {
@@ -80,25 +76,21 @@ TYPE_ID         {LETTER_UPPER}{ID_CONT}*
                         else if (s == "Char")    return KW_TYPE_CHAR;
                         else if (s == "Bool")    return KW_TYPE_BOOL;
                         else if (s == "Float")   return KW_TYPE_FLOAT;
-                        /* TODO: adicionar outras keywords específicas de lang */
 
                         yylval.stringVal = new std::string(s);
                         return IDENTIFIER;
                      }
 
-/* Tipo de identificador começando com maiúscula */
 {TYPE_ID}             {
                         yylval.stringVal = new std::string(yytext);
                         return TYPE_IDENTIFIER;
                      }
 
-/* Operadores e símbolos compostos */
 "&&"                  { return AND_OP; }
 "=="                  { return EQ_OP; }
 "!="                  { return NEQ_OP; }
 "::"                  { return DOUBLE_COLON; }
 
-/* Símbolos simples */
 "<"                   { return LT_OP; }
 ">"                   { return GT_OP; }
 "="                   { return ASSIGN_OP; }
