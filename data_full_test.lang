@@ -1,0 +1,1 @@
+data Point { x :: Int; } fun main() { p :: Point; p = new Point; p.x = 10; }

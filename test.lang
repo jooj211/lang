@@ -1,0 +1,78 @@
+{-
+  Arquivo de teste para validar a implementação de matrizes (arrays 2D).
+  Cobre:
+  - Declaração de matrizes (ex: Int[][]).
+  - Alocação com múltiplas dimensões (ex: new Int[2][3]).
+  - Atribuição a posições (ex: m[i][j] = valor).
+  - Acesso a posições (ex: print m[i][j]).
+  - Matrizes de Registros.
+  - Passagem de matrizes como parâmetro para funções.
+-}
+
+data Ponto {
+    x :: Float;
+    y :: Float;
+}
+
+// Função auxiliar: recebe uma matriz quadrada e imprime sua diagonal principal.
+printDiagonal(matrix :: Int[][], size :: Int) {
+    i = 0;
+    iterate(size) {
+        print matrix[i][i];
+        i = i + 1;
+    }
+}
+
+main() {
+    // --- Teste 1: Matriz de Inteiros ---
+    print 1; // Marcador para o início do Teste 1
+    
+    matrix :: Int[][];
+    matrix = new Int[2][3]; // Aloca uma matriz 2x3
+
+    // Preenche a matriz com valores: m[i][j] = (i * 10) + j
+    // matrix[0][0]=0, matrix[0][1]=1, matrix[0][2]=2
+    // matrix[1][0]=10, matrix[1][1]=11, matrix[1][2]=12
+    i = 0;
+    iterate(2) {
+        j = 0;
+        iterate(3) {
+            matrix[i][j] = (i * 10) + j;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    // Verifica alguns valores
+    print matrix[0][1]; // Saída esperada: 1
+    print matrix[1][2]; // Saída esperada: 12
+
+
+    // --- Teste 2: Matriz de Registros ---
+    print 2; // Marcador para o início do Teste 2
+
+    pontoMatrix :: Ponto[][];
+    pontoMatrix = new Ponto[2][2]; // Aloca uma matriz 2x2 de Pontos
+
+    // Atribui um valor a um campo de um dos Pontos na matriz
+    pontoMatrix[1][0].x = 123.45;
+
+    // Verifica o valor padrão e o valor atribuído
+    print pontoMatrix[0][0].x; // Saída esperada: 0.0 (valor padrão)
+    print pontoMatrix[1][0].x; // Saída esperada: 123.45
+
+
+    // --- Teste 3: Passando Matriz como Parâmetro ---
+    print 3; // Marcador para o início do Teste 3
+    
+    diagMatrix :: Int[][];
+    diagMatrix = new Int[3][3];
+
+    // Preenche a diagonal principal com 7, 8, 9
+    diagMatrix[0][0] = 7;
+    diagMatrix[1][1] = 8;
+    diagMatrix[2][2] = 9;
+
+    // Chama a função para imprimir a diagonal
+    printDiagonal(diagMatrix, 3); // Saída esperada: 7, 8, 9
+}
