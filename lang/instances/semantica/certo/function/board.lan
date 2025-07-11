@@ -1,0 +1,39 @@
+
+printBoard(board :: Char[][], nl :: Int, nc :: Int){
+    i = 0;
+    iterate(nl){
+        j = 0;
+        iterate(nc){
+            print board[i][j];
+            j = j + 1;
+        }
+        print '\n';
+        i = i + 1;
+    }
+}
+
+startBoard(c :: Char, nl :: Int, nc :: Int): Char[][]{
+    board = new Char[][nl];
+    i = 0;
+    iterate(nl){
+        j = 0;
+        board[i] = new Char[nc];
+        iterate(nc){
+            board[i][j] = c;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return board;
+}
+
+set(board :: Char[][], x :: Int, y :: Int) {
+     board[x][y] = 'A';
+}
+
+main() {
+    board = startBoard('*',3,4)[0];
+    printBoard(board,3,4);
+    set(board,1,2);
+    printBoard(board,3,4);
+}

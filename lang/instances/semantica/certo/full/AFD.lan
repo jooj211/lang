@@ -1,0 +1,170 @@
+data Transition {
+    sym :: Char;
+    dest :: Int;
+}
+
+data AFD {
+    st :: Transition[][]; -- Um AFD e uma matriz de transicoes;
+    numt :: Int[];        -- Numero de transicoes de cada estado (negativo se o estado e final);
+    numStates :: Int;     -- Numero de estados
+    start :: Int;         -- O estado incial
+}
+
+mkAutomata(numStates :: Int):AFD{
+   m = new AFD;
+   m.st = new Transition[][numStates];
+   m.numt = new Int[numStates];
+   i = 0;
+   iterate(numStates){m.numt[i] =1 ; i = i + 1;}
+   m.numStates = numStates;
+   m.start = 0;
+   return m;
+}
+
+setFinal(m :: ADF, st :: Int){
+    m.numt[st] = 0 - m.numt[st];
+}
+
+isFinal(m :: ADF, st :: Int): Bool{
+    return  m.numt[st] < 0;
+}
+
+setNumTransitions(m :: ADF, st :: Int, n :: Int){
+    m.st[st] = new Transition[n];
+    m.numt[st] = n+1;
+}
+
+addTransition(m :: ADF, st :: Int, a :: Char, d :: Int){
+    i = 0;
+    add = true;
+    iterate(abs(m.numt[st])[0]-1){
+        if(m.st[st][i] == null && add){
+             m.st[st][i] = new Transition;
+             m.st[st][i].sym = a;
+             m.st[st][i].dest = d;
+             add = false;
+        }
+        i = i + 1;
+    }
+
+}
+
+abs(n :: Int) : Int{
+    if(0 < n){
+      return n;
+    }
+    return 0 - n;
+}
+
+printAutomata(m :: AFD){
+    st = 0;
+    iterate(m.numStates){
+        if(isFinal(m,st)[0]){print '*';}
+        print st;
+        print ' ';
+        print  abs(m.numt[st])[0]-1;
+        print ' ';
+        if(m.st[st] != null && 0 < abs(m.numt[st])[0]-1){
+            k = 0;
+            iterate(abs(m.numt[st])[0]-1){
+                if(m.st[st][k] != null){
+                    print '[';
+                    print m.st[st][k].sym;
+                    print ' ';
+                    print '-';
+                    print '>';
+                    print ' ';
+                    print m.st[st][k].dest;
+                    print ']';
+                    print ' ';
+                    k = k + 1;
+                }
+            }
+        }
+        print '\n';
+        st = st + 1;
+    }
+}
+
+delta(m :: AFD, st :: Int, c :: Char): Int{
+     if(m.st[st] != null && 0 < abs(m.numt[st])[0]-1){
+         k = 0;
+         iterate(abs(m.numt[st])[0]-1){
+             if(m.st[st][k].sym == c){
+                 return m.st[st][k].dest;
+             }
+             k = k  +1;
+         }
+     }
+     return 0-1; -- retorna um estado invalido.
+}
+
+runAFDHelper(m :: AFD, st :: Int, p :: Int, sz :: Int, s :: Char[]) : Int{
+    if(p < sz){
+       return runAFDHelper(m,delta(m,st,s[p])[0],p+1, sz, s)[0];
+    }
+    return st;
+
+}
+
+runAFD(m :: AFD,  s :: Char[], sz :: Int): Int{
+    return runAFDHelper(m, m.start, 0, sz, s)[0];
+}
+
+myAFD():AFD{
+     {-
+       afd (a|b)* bb (a|b)*
+        0 'a' -> 0
+        0 'b' -> 1
+        1 'a' -> 0
+        1 'b' -> 2
+        2 'a' -> 2
+        2 'b' -> 2
+    -}
+    afd = mkAutomata(3)[0];
+    setNumTransitions(afd,0,2);
+    addTransition(afd,0,'a',0);
+    addTransition(afd,0,'b',1);
+
+    setNumTransitions(afd,1,2);
+    addTransition(afd,1,'a',0);
+    addTransition(afd,1,'b',2);
+
+
+    setNumTransitions(afd,2,2);
+    addTransition(afd,2,'a',2);
+    addTransition(afd,2,'b',2);
+
+    setFinal(afd,2);
+    return afd;
+
+}
+
+main(){
+     afd = myAFD()[0];
+     --printAutomata(afd);
+     str = new Char[4];
+     stop = 0;
+     str[0] = 'a';
+     str[1] = 'b';
+     str[2] = 'b';
+     str[3] = 'a';
+     stop = runAFD(afd, str, 4)[0];
+     print stop;
+     print ' ';
+     print isFinal(afd,stop)[0];
+     print '\n';
+
+     str[0] = 'a';
+     str[1] = 'b';
+     str[2] = 'a';
+     str[3] = 'b';
+     stop = runAFD(afd, str, 4)[0];
+     print stop;
+     print ' ';
+     print isFinal(afd,stop)[0];
+     print '\n';
+
+
+}
+

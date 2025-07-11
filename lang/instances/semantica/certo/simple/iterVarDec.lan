@@ -1,0 +1,12 @@
+main(){
+   x = 10;
+   i = 21;
+   iterate(i : x + 2){
+       print i;
+       print ' ';
+   }
+   print '.';
+   print '\n';
+   print i;
+   print '\n';
+}

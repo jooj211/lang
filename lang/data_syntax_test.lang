@@ -1,0 +1,1 @@
+data Point { x :: Int; y :: Int; } fun main() {}

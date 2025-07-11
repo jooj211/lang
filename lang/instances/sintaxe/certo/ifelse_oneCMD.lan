@@ -1,0 +1,7 @@
+main() {
+  x = 10;
+  if(x < 10) 
+     print 0;
+  else print 1;
+  
+}

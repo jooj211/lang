@@ -1,0 +1,9 @@
+fn() : Int,Char {
+    return 2+1, 'a', false;
+}
+
+
+main() {
+    x = 0;
+    x = fn()[100];
+}

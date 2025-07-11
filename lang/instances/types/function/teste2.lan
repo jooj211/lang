@@ -1,0 +1,11 @@
+
+main() {
+    x = 13;
+    y = 5;
+    divMod(x,y);
+ }
+
+divMod(n :: Int, q :: Int ) : Int, Int{
+    x = 5;
+    return n / q, n % q;
+}

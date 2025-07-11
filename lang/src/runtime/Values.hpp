@@ -1,0 +1,7 @@
+#include "Value.hpp"
+#include "IntValue.hpp"
+#include "BoolValue.hpp"
+#include "FloatValue.hpp"
+#include "CharValue.hpp"
+#include "RecordValue.hpp"
+#include "ArrayValue.hpp"

@@ -1,0 +1,17 @@
+data Ponto {
+   x :: Float;
+   y :: Float;
+}
+
+
+fat(d :: Int ) : Int , Char {
+    x = 0;
+    y =  x + 1 * (5 - 2);
+    return 0;
+}
+
+main(x :: Ponto) {
+   print x.x;
+   z = f(0)[0] + 2;
+}
+

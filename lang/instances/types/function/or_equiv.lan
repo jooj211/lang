@@ -1,0 +1,22 @@
+or(a :: Bool, b :: Bool) : Bool {
+    return !(!a && !b);
+}
+
+main(){
+   a = true;
+   b = true;
+   print or(a,b)[0];
+   print '\n';
+   a = true;
+   b = false;
+   print or(a,b)[0];
+   print '\n';
+   a = false;
+   b = true;
+   print or(a,b)[0];
+   print '\n';
+   a = false;
+   b = false;
+   print or(a,b)[0];
+   print '\n';
+}

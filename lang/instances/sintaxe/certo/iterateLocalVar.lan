@@ -1,0 +1,8 @@
+main() {
+  c = 0;
+  iterate (i : 10){
+     print '*';
+     c = c + 1;
+  }
+  print '\n';
+}

@@ -1,0 +1,81 @@
+data Node{
+     val :: Int;
+     next :: Node;
+}
+
+data LList{
+    head :: Node;
+    size :: Int;
+}
+
+createList() : LList{
+   n = new LList;
+   n.head = null;
+   n.size = 0;
+   return n;
+}
+
+lastNode(h :: Node) : Node{
+   if(h.next == null){return h;}
+   return lastNode(h.next)[0];
+}
+
+addNode(l :: LList, x :: Int) {
+   no = new Node;
+   no.val = x;
+   no.next = null;
+   if(l.head == null){
+       l.head = no;
+   }else{
+       last = lastNode(l.head)[0];
+       last.next = no;
+   }
+   l.size = l.size + 1;
+}
+
+removeHead(l :: LList) : Node {
+   if(l.head != null){
+       node = l.head;
+       l.head = l.head.next;
+       l.size = l.size - 1;
+       return node;
+   }
+   return null;
+}
+
+
+printList(h :: Node) {
+    if(h != null){
+           print h.val;
+           print '-';
+           print '>';
+           printList(h.next);
+    }
+    if(h == null){
+       print 'N';
+       print 'U';
+       print 'L';
+       print 'L';
+       print '\n';
+    }
+}
+
+printLList(l :: LList) {
+    print(l.size);
+    print ':';
+    printList(l.head);
+}
+
+
+main() {
+    k = 65;
+    l = createList()[0];
+    addNode(l,k);
+    iterate(5){
+       k = k + 1;
+       addNode(l,k);
+    }
+    printLList(l);
+    head = removeHead(l)[0];
+    printLList(l);
+}

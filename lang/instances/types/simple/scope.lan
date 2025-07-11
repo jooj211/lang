@@ -1,0 +1,15 @@
+
+inicio(){
+   x = 0;
+   if(x == 0){
+      y = 2;
+      if( false ){
+         z = y == x;
+      }
+      print y;
+   }else{
+      z  = 2;
+      print z;
+   }
+   read x;
+}

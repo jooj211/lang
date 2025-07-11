@@ -1,0 +1,10 @@
+main(){
+   x = 3 - 2 - 1;
+   y = 3 - (2 - 1);
+   print x;
+   print '\n';
+   print y;
+   print '\n';
+   print x == y;
+   print '\n';
+}

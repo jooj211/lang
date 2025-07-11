@@ -1,0 +1,8 @@
+main() {
+  v = new Int[10];
+  iterate (v){
+     print '*';
+     c = c + 1;
+  }
+  print '\n';
+}

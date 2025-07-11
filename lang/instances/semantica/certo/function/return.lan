@@ -1,0 +1,17 @@
+fn() : Int,Char {
+    return 2+1, 'a', false;
+}
+
+
+main() {
+    x = fn()[2];
+    y = fn()[0];
+    z = fn()[1];
+    print x;
+    print '\n';
+    print y;
+    print '\n';
+    print z;
+    print '\n';
+}
+
