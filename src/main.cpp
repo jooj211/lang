@@ -24,33 +24,68 @@ enum class CompilerAction
     INTERPRET           // Para a flag -i
 };
 
-// Função de ajuda atualizada
+// Função de ajuda
 static void usage(const char *exe)
 {
-    std::cerr << "Uso: " << exe << " <diretiva> <arquivo.lang>\n\n"
+    std::cerr << "Uso: " << exe << " [--test] [--debug] <diretiva> <arquivo.lang>\n\n"
+              << "Opções:\n"
+              << "  --test   Ativa argumentos falsos para teste (compile com -DFAKE_ARGS).\n"
+              << "  --debug  Habilita o yydebug para traço do parser.\n\n"
               << "Diretivas disponíveis:\n"
-              << "  -syn   Executa apenas a análise sintática e retorna 'accept' ou 'reject'.\n"
-              << "  -i     Interpreta o programa após a checagem de tipos.\n";
+              << "  -syn     Executa apenas a análise sintática e retorna 'accept' ou 'reject'.\n"
+              << "  -i       Interpreta o programa após a checagem de tipos.\n";
 }
 
 int main(int argc, char *argv[])
 {
-    /* ---------- Bloco de Argumentos de Teste (mantido) ---------- */
-    // Para testar, basta descomentar a linha da diretiva desejada.
+    bool use_fake = false;
+    bool enable_debug = false;
 
-    // Teste para -syn (análise sintática)
-    /* const char *fake_argv[] = {"lang", "-i", "test.lang"}; */
+#ifdef FAKE_ARGS
+    use_fake = true;
+#endif
 
-    // Teste para -i (interpretação)
-    const char *fake_argv[] = {"lang", "-i", "test.lang"};
+    // Verifica flags de runtime (--test e --debug)
+    int idx = 1;
+    while (idx < argc && argv[idx][0] == '-')
+    {
+        if (std::strcmp(argv[idx], "--test") == 0)
+        {
+            use_fake = true;
+        }
+        else if (std::strcmp(argv[idx], "--debug") == 0)
+        {
+            enable_debug = true;
+        }
+        else
+        {
+            break;
+        }
+        ++idx;
+    }
 
-    argc = 3;
-    argv = const_cast<char **>(fake_argv);
-    /* ------------------------------------------------------------- */
+    // Se estiver em modo fake, defina fake argv antes de mais nada
+    if (use_fake)
+    {
+        const char *fake_argv[] = {"lang", "-i", "test.lang"};
+        argc = 3;
+        argv = const_cast<char **>(fake_argv);
+    }
+    else
+    {
+        // Remove as flags de runtime do argv real
+        if (idx > 1)
+        {
+            for (int i = idx; i < argc; ++i)
+                argv[i - (idx - 1)] = argv[i];
+            argc -= (idx - 1);
+        }
+    }
 
-    yydebug = 1; // Mude para 1 para ver o traço do parser
+    // Configura yydebug conforme flag
+    yydebug = enable_debug ? 1 : 0;
 
-    /* ---------- 1. Processa argumentos ---------- */
+    // Processa argumentos principais
     if (argc < 3)
     {
         usage(argv[0]);
@@ -58,11 +93,11 @@ int main(int argc, char *argv[])
     }
 
     CompilerAction action;
-    if (strcmp(argv[1], "-syn") == 0)
+    if (std::strcmp(argv[1], "-syn") == 0)
     {
         action = CompilerAction::SYNTACTIC_ANALYSIS;
     }
-    else if (strcmp(argv[1], "-i") == 0)
+    else if (std::strcmp(argv[1], "-i") == 0)
     {
         action = CompilerAction::INTERPRET;
     }
@@ -75,7 +110,7 @@ int main(int argc, char *argv[])
 
     std::string filename = argv[2];
 
-    /* ---------- 2. Abre arquivo ---------- */
+    // Abre arquivo
     yyin = std::fopen(filename.c_str(), "r");
     if (!yyin)
     {
@@ -83,10 +118,9 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    /* ---------- 3. Análise Sintática (Parser) ------------ */
+    // Análise sintática
     if (yyparse() != 0 || !ast_root || parse_error_detected)
     {
-        // Se a sintaxe estiver incorreta, o resultado é 'reject'.
         if (action == CompilerAction::SYNTACTIC_ANALYSIS)
         {
             std::cout << "reject" << std::endl;
@@ -94,16 +128,14 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    /* ---------- 4. Executa a ação solicitada ---------- */
-
-    // Ação: Apenas análise sintática
+    // Ação de análise sintática apenas
     if (action == CompilerAction::SYNTACTIC_ANALYSIS)
     {
         std::cout << "accept" << std::endl;
-        return EXIT_SUCCESS; // Encerra com sucesso após imprimir 'accept'
+        return EXIT_SUCCESS;
     }
 
-    // Ação: Checagem de tipos e interpretação
+    // Checagem de tipos e interpretação
     if (action == CompilerAction::INTERPRET)
     {
         try

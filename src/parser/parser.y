@@ -16,7 +16,7 @@
 #include "ast/FunCallCmdNode.hpp"
 #include "ast/NewExprNode.hpp"
 #include "ast/FieldAccessNode.hpp"
-#include "ast/ArrayAccessNode.hpp" // Adicionado para acesso a arrays
+#include "ast/ArrayAccessNode.hpp"
 
 extern int yylex();
 extern int yylineno;
@@ -81,9 +81,9 @@ ProgramNode* ast_root = nullptr;
 %type <def_node> def fun_def data_def
 %type <command_list> command_list
 %type <command_node> command var_decl assign_cmd if_cmd iterate_cmd block read_cmd return_cmd fun_call_cmd
-%type <expression_node> expression lvalue primary_expression postfix_expression new_expression
+%type <expression_node> expression lvalue primary_expression postfix_expression new_expression optional_expression
 %type <type_node> type atomic_type
-%type <expression_list> expression_list optional_expression_list lvalue_list array_dim_list
+%type <expression_list> expression_list optional_expression_list lvalue_list dim_list
 %type <param_node> param
 %type <param_list> params param_list_non_empty
 %type <type_list> optional_return_types type_list_non_empty
@@ -298,16 +298,21 @@ primary_expression:
 
 new_expression:
       T_NEW atomic_type
-        { $$ = new NewExprNode($2, nullptr); }
-    | T_NEW atomic_type array_dim_list
+        { $$ = new NewExprNode($2, new std::vector<Expression*>()); }
+    | T_NEW atomic_type dim_list
         { $$ = new NewExprNode($2, $3); }
     ;
 
-array_dim_list:
-      '[' expression ']'
+dim_list:
+      '[' optional_expression ']'
         { $$ = new std::vector<Expression*>(); $$->push_back($2); }
-    | array_dim_list '[' expression ']'
+    | dim_list '[' optional_expression ']'
         { $1->push_back($3); $$ = $1; }
+    ;
+
+optional_expression:
+      /* empty */    { $$ = nullptr; }
+    | expression     { $$ = $1; }
     ;
 
 %% /* =================== C-code =================== */

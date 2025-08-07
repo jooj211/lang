@@ -1,6 +1,0 @@
-// Conteúdo de teste_sintaxe.lang
-fun main() {
-    // Este código é sintaticamente correto
-    x :: Int;
-    x = 10;
-}

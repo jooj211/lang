@@ -106,14 +106,35 @@ void TypeChecker::check(ProgramNode *ast)
 
 void TypeChecker::visit(ProgramNode *node)
 {
-    // Passadas de registro...
+    // --- PASSO 1: Registrar Nomes de Tipos ---
+    // Passamos uma vez por todas as definições de 'data' para registrar apenas
+    // seus nomes. Isso resolve o problema de recursão.
     for (Node *def : node->definitions)
     {
         if (auto data_def = dynamic_cast<DataDefNode *>(def))
         {
-            data_def->accept(this);
+            if (record_types.count(data_def->name))
+            {
+                throw std::runtime_error("Erro Semântico: Tipo '" + data_def->name + "' já definido.");
+            }
+            // Adiciona um tipo de registro "vazio" ao mapa, apenas com o nome.
+            record_types[data_def->name] = std::make_shared<RecordType>(data_def->name);
         }
     }
+
+    // --- PASSO 2: Preencher os Campos dos Tipos ---
+    // Agora que todos os nomes de tipos são conhecidos, passamos novamente para
+    // analisar e preencher os campos de cada registro.
+    for (Node *def : node->definitions)
+    {
+        if (auto data_def = dynamic_cast<DataDefNode *>(def))
+        {
+            data_def->accept(this); // Chama o novo visit(DataDefNode*)
+        }
+    }
+
+    // --- PASSO 3: Registrar Assinaturas de Funções ---
+    // A análise das funções só ocorre após todos os tipos estarem definidos.
     for (Node *def : node->definitions)
     {
         if (auto fun_def = dynamic_cast<FunDefNode *>(def))
@@ -121,7 +142,8 @@ void TypeChecker::visit(ProgramNode *node)
             fun_def->accept(this);
         }
     }
-    // Passada de verificação dos corpos
+
+    // --- PASSO 4: Verificar os Corpos das Funções ---
     for (Node *def : node->definitions)
     {
         if (auto fun_def = dynamic_cast<FunDefNode *>(def))
@@ -140,16 +162,21 @@ void TypeChecker::visit(ProgramNode *node)
 
 void TypeChecker::visit(DataDefNode *node)
 {
-    if (record_types.count(node->name))
-    {
-        throw std::runtime_error("Erro Semântico: Tipo '" + node->name + "' já definido.");
-    }
-    auto rec_type = std::make_shared<RecordType>(node->name);
+    // 1. O tipo já foi pré-registrado, então o recuperamos do mapa.
+    auto rec_type = record_types.at(node->name);
+
+    // 2. Apenas preenchemos o mapa de campos do tipo.
     for (VarDeclNode *field : node->fields)
     {
+        if (rec_type->fields.count(field->name))
+        {
+            throw std::runtime_error("Erro Semântico: Campo '" + field->name + "' duplicado no tipo '" + node->name + "'.");
+        }
+
+        // Agora, se um campo for do tipo 'Node', a chamada abaixo encontrará
+        // "Node" no mapa 'record_types' e resolverá o tipo corretamente.
         rec_type->fields[field->name] = type_from_node(field->type);
     }
-    record_types[node->name] = rec_type;
 }
 
 void TypeChecker::visit(FunDefNode *node)

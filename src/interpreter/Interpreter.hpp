@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
 
 // Headers do seu projeto
 #include "../ast/Visitor.hpp"
@@ -34,7 +35,7 @@ private:
     Value *get_variable(const std::string &name);
 
     // --- Métodos Auxiliares para Arrays/Matrizes ---
-    Value *create_default_value(TypeNode *type);
+    Value *create_default_value(TypeNode *type, std::set<std::string> &visited_records);
     Value *create_nested_array(TypeNode *base_elem_type,
                                const std::vector<Expression *> &dims,
                                size_t dim_index);
@@ -42,6 +43,7 @@ private:
 public:
     ~Interpreter();
     void interpret(ProgramNode *ast);
+    Value *create_default_value(TypeNode *type);
 
     // Métodos visit() ...
     void visit(ProgramNode *node) override;

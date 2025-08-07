@@ -8,7 +8,17 @@
 
 Value *Interpreter::create_default_value(TypeNode *type)
 {
-    // Se o tipo base for primitivo
+    std::set<std::string> visited;
+    return create_default_value(type, visited);
+}
+
+Value *Interpreter::create_default_value(TypeNode *type, std::set<std::string> &visited_records)
+{
+    if (!type || type->is_array)
+    {
+        return nullptr;
+    }
+
     if (type->is_primitive)
     {
         Value *val = nullptr;
@@ -27,26 +37,42 @@ Value *Interpreter::create_default_value(TypeNode *type)
             val = new BoolValue(false);
             break;
         default:
-            return nullptr; // Void ou outros tipos não tem valor padrão
+            return nullptr;
         }
-        value_pool.push_back(val);
+        if (val)
+            value_pool.push_back(val);
         return val;
     }
-    // Se for um tipo de registro (ex: Ponto)
     else
-    {
+    { // É um tipo de registro
         std::string type_name = type->user_type_name;
+
+        // ==================================================================
+        // ====> COLOQUE A MENSAGEM DE DEBUG EXATAMENTE AQUI <====
+        // ==================================================================
+        std::cerr << "[DEBUG] Tentando criar valor padrão para o tipo de registro: '" << type_name << "'.\n";
+
+        // VERIFICAÇÃO DE RECURSÃO
+        if (visited_records.count(type_name))
+        {
+            std::cerr << "    └─ DETECTADO CICLO! O tipo '" << type_name << "' já está sendo criado. Retornando 'null' para quebrar a recursão.\n";
+            return nullptr;
+        }
+        // ==================================================================
+
         if (data_types.count(type_name))
         {
+            visited_records.insert(type_name);
             DataDefNode *def = data_types.at(type_name);
             auto *record = new RecordValue(type_name);
             value_pool.push_back(record);
 
-            // Inicializa todos os campos do registro com seus próprios valores padrão
             for (VarDeclNode *field : def->fields)
             {
-                record->fields[field->name] = create_default_value(field->type);
+                record->fields[field->name] = create_default_value(field->type, visited_records);
             }
+
+            visited_records.erase(type_name);
             return record;
         }
     }
@@ -59,31 +85,28 @@ Value *Interpreter::create_default_value(TypeNode *type)
  * @param dims O vetor com as expressões de tamanho para cada dimensão.
  * @param dim_index O índice da dimensão atual que está sendo alocada.
  */
+
 Value *Interpreter::create_nested_array(TypeNode *base_elem_type,
                                         const std::vector<Expression *> &dims,
                                         size_t dim_index)
 {
-    // Caso base: Se todas as dimensões foram processadas, cria e retorna o elemento final.
     if (dim_index >= dims.size())
     {
         return create_default_value(base_elem_type);
     }
 
-    // Passo recursivo: Processa a dimensão atual.
     dims[dim_index]->accept(this);
     auto *size_val = dynamic_cast<IntValue *>(last_value);
     if (!size_val || size_val->value < 0)
     {
-        throw std::runtime_error("Erro de Execução: Dimensão de array inválida ou não-inteira.");
+        throw std::runtime_error("Erro de Execução: Dimensão de array inválida.");
     }
     size_t size = size_val->value;
 
-    // Cria o array para a dimensão atual.
     auto *arr_val = new ArrayValue();
     value_pool.push_back(arr_val);
     arr_val->elements.resize(size);
 
-    // Preenche o array chamando a si mesma para a próxima dimensão.
     for (size_t i = 0; i < size; ++i)
     {
         arr_val->elements[i] = create_nested_array(base_elem_type, dims, dim_index + 1);
@@ -91,7 +114,6 @@ Value *Interpreter::create_nested_array(TypeNode *base_elem_type,
 
     return arr_val;
 }
-
 // ... (todo o topo do arquivo: destrutor, push/pop_scope, etc. continua igual) ...
 Interpreter::~Interpreter()
 {
@@ -115,37 +137,56 @@ void Interpreter::set_variable(const std::string &name, Value *value, bool is_de
         memory_stack.back()[name] = value;
     }
 }
-void Interpreter::update_variable(const std::string &name, Value *new_value_obj)
+
+void Interpreter::update_variable(const std::string &name, Value *new_value)
 {
     for (auto it = memory_stack.rbegin(); it != memory_stack.rend(); ++it)
     {
         if (it->count(name))
         {
-            Value *ev = it->at(name);
-            if (auto i_ev = dynamic_cast<IntValue *>(ev))
+            Value *old_value = it->at(name);
+
+            // Se for um tipo primitivo, copiamos o valor interno.
+            if (auto i_old = dynamic_cast<IntValue *>(old_value))
             {
-                if (auto i_nv = dynamic_cast<IntValue *>(new_value_obj))
-                    i_ev->value = i_nv->value;
+                if (auto i_new = dynamic_cast<IntValue *>(new_value))
+                {
+                    i_old->value = i_new->value;
+                    return;
+                }
             }
-            else if (auto b_ev = dynamic_cast<BoolValue *>(ev))
+            if (auto f_old = dynamic_cast<FloatValue *>(old_value))
             {
-                if (auto b_nv = dynamic_cast<BoolValue *>(new_value_obj))
-                    b_ev->value = b_nv->value;
+                if (auto f_new = dynamic_cast<FloatValue *>(new_value))
+                {
+                    f_old->value = f_new->value;
+                    return;
+                }
             }
-            else if (auto f_ev = dynamic_cast<FloatValue *>(ev))
+            if (auto c_old = dynamic_cast<CharValue *>(old_value))
             {
-                if (auto f_nv = dynamic_cast<FloatValue *>(new_value_obj))
-                    f_ev->value = f_nv->value;
+                if (auto c_new = dynamic_cast<CharValue *>(new_value))
+                {
+                    c_old->value = c_new->value;
+                    return;
+                }
             }
-            else if (auto c_ev = dynamic_cast<CharValue *>(ev))
+            if (auto b_old = dynamic_cast<BoolValue *>(old_value))
             {
-                if (auto c_nv = dynamic_cast<CharValue *>(new_value_obj))
-                    c_ev->value = c_nv->value;
+                if (auto b_new = dynamic_cast<BoolValue *>(new_value))
+                {
+                    b_old->value = b_new->value;
+                    return;
+                }
             }
+
+            // Para todos os outros casos (registros, arrays, null), trocamos o ponteiro.
+            (*it)[name] = new_value;
             return;
         }
     }
 }
+
 Value *Interpreter::get_variable(const std::string &name)
 {
     for (auto it = memory_stack.rbegin(); it != memory_stack.rend(); ++it)
@@ -168,7 +209,6 @@ void Interpreter::interpret(ProgramNode *ast)
 
 // ============ Implementação dos Métodos visit() ============
 
-// Interpreter.cpp
 // ------------------------------------------------------------------
 static TypeNode *clone_type(TypeNode *src) // utilitário rápido
 {
@@ -241,24 +281,59 @@ void Interpreter::visit(DataDefNode *node)
 /**
  * @brief Visita um nó de alocação 'new', usando os métodos auxiliares.
  */
+// Em Interpreter.cpp
 void Interpreter::visit(NewExprNode *node)
 {
-    // Usa os novos membros do NewExprNode: base_type e dims
-
-    // Caso 1: Alocação de objeto único (ex: new Ponto), o vetor de dimensões está vazio.
+    // Caso 1: Alocação de objeto único (ex: new AFD ou new Transition)
     if (node->dims.empty())
     {
         if (node->base_type->is_primitive)
         {
-            throw std::runtime_error("Erro de Execução: 'new' em tipo primitivo requer um tamanho de array.");
+            throw std::runtime_error("Erro de Execução: 'new' em tipo primitivo deve ser uma alocação de array.");
         }
         last_value = create_default_value(node->base_type);
+        return;
     }
-    // Caso 2: Alocação de array/matriz (ex: new Int[5] ou new Ponto[10][2]).
-    else
+
+    // Caso 2: Alocação de Array ou Matriz (ex: new Int[5] ou new Transition[][numStates])
+    // A lógica abaixo foi adaptada para a sintaxe do professor.
+
+    // A sintaxe `new T[][size]` é incomum. Nossa interpretação é que o tamanho
+    // da dimensão mais externa está sendo especificado por último.
+    // Vamos procurar pela última expressão de dimensão que não seja nula.
+    Expression *size_expr = nullptr;
+    for (auto it = node->dims.rbegin(); it != node->dims.rend(); ++it)
     {
-        last_value = create_nested_array(node->base_type, node->dims, 0);
+        if (*it != nullptr)
+        {
+            size_expr = *it;
+            break;
+        }
     }
+
+    // Se nenhuma dimensão foi especificada (ex: new T[][]), é um erro em tempo de execução.
+    if (!size_expr)
+    {
+        throw std::runtime_error("Erro de Execução: Alocação de array requer pelo menos um tamanho de dimensão.");
+    }
+
+    // Avalia a expressão de tamanho que encontramos.
+    size_expr->accept(this);
+    auto *size_val = dynamic_cast<IntValue *>(last_value);
+    if (!size_val || size_val->value < 0)
+    {
+        throw std::runtime_error("Erro de Execução: Tamanho do array inválido.");
+    }
+
+    size_t size = size_val->value;
+
+    // Cria o array externo com o tamanho encontrado e o preenche com `nullptr`.
+    // As dimensões internas serão alocadas depois (ex: em setNumTransitions).
+    auto *arr_val = new ArrayValue();
+    value_pool.push_back(arr_val);
+    arr_val->elements.resize(size, nullptr); // Redimensiona e preenche com ponteiros nulos
+
+    last_value = arr_val;
 }
 void Interpreter::visit(FunDefNode *node) { functions[node->name] = node; }
 void Interpreter::visit(FunCallNode *node)
@@ -358,7 +433,6 @@ void Interpreter::visit(FunCallCmdNode *node)
     }
     pop_scope();
 }
-
 void Interpreter::visit(FieldAccessNode *node)
 {
     node->record_expr->accept(this);
@@ -378,7 +452,6 @@ void Interpreter::visit(FieldAccessNode *node)
 
     last_value = rec_val->fields[node->field_name];
 }
-
 void Interpreter::visit(ReturnCmdNode *node)
 {
     ReturnSignal ret_signal;
@@ -477,124 +550,79 @@ void Interpreter::visit(VarDeclNode *node)
 
 void Interpreter::visit(AssignCmdNode *node)
 {
-    // 1. Avalia a expressão do lado direito (RHS) para obter o valor a ser atribuído.
+    // 1. Avalia a expressão do lado direito (RHS) para obter o valor.
     node->expr->accept(this);
     Value *rhs_value = last_value;
 
-    // 2. Lida com l-value de ACESSO A VARIÁVEL (ex: x = 10)
+    // 2. Determina o tipo do L-Value e realiza a atribuição.
+
+    // --- CASO 1: Atribuição a uma variável simples (ex: x = 10) ---
     if (auto *va = dynamic_cast<VarAccessNode *>(node->lvalue))
     {
+        // Se a variável já existe na memória, atualiza seu valor.
         if (get_variable(va->name))
         {
             update_variable(va->name, rhs_value);
         }
         else
         {
-            set_variable(va->name, rhs_value, true);
+            // Se não existe (inferência de tipo), cria no escopo atual.
+            set_variable(va->name, rhs_value, /*is_decl=*/true);
         }
     }
-    // 3. Lida com l-value de ACESSO A CAMPO (ex: p.x = 3.0)
+    // --- CASO 2: Atribuição a um campo de registro (ex: last.next = no) ---
     else if (auto *fa = dynamic_cast<FieldAccessNode *>(node->lvalue))
     {
+        // a. Avalia a expressão antes do ponto (ex: 'last') para obter o RecordValue.
         fa->record_expr->accept(this);
-        auto *record_val = dynamic_cast<RecordValue *>(last_value);
-        if (!record_val)
+        auto *record = dynamic_cast<RecordValue *>(last_value);
+
+        if (!record)
         {
-            throw std::runtime_error("Erro de Execução: Tentativa de acessar campo em uma referência nula ou não-registro.");
+            throw std::runtime_error("Erro de Execução: Tentativa de acesso a campo em algo que não é um registro.");
         }
 
-        // A lógica para atualizar o valor do campo...
-        Value *field_to_update = record_val->fields.at(fa->field_name);
-        // (A cópia de valor para campos que implementamos anteriormente vai aqui)
-        if (auto i_dest = dynamic_cast<IntValue *>(field_to_update))
+        // b. Verifica se o campo existe no registro.
+        if (record->fields.find(fa->field_name) == record->fields.end())
         {
-            if (auto i_src = dynamic_cast<IntValue *>(rhs_value))
-            {
-                i_dest->value = i_src->value;
-            }
+            throw std::runtime_error("Erro de Execução: Campo '" + fa->field_name + "' não existe no tipo '" + record->type_name + "'.");
         }
-        else if (auto f_dest = dynamic_cast<FloatValue *>(field_to_update))
-        {
-            if (auto f_src = dynamic_cast<FloatValue *>(rhs_value))
-            {
-                f_dest->value = f_src->value;
-            }
-        }
-        else if (auto c_dest = dynamic_cast<CharValue *>(field_to_update))
-        {
-            if (auto c_src = dynamic_cast<CharValue *>(rhs_value))
-            {
-                c_dest->value = c_src->value;
-            }
-        }
-        else if (auto b_dest = dynamic_cast<BoolValue *>(field_to_update))
-        {
-            if (auto b_src = dynamic_cast<BoolValue *>(rhs_value))
-            {
-                b_dest->value = b_src->value;
-            }
-        }
-        else
-        {
-            record_val->fields[fa->field_name] = rhs_value;
-        }
+
+        // c. Atualiza o ponteiro do campo para o novo valor.
+        record->fields[fa->field_name] = rhs_value;
     }
-    // 4. Lida com l-value de ACESSO A ARRAY (ex: intArray[0] = 100) -- LÓGICA NOVA
+    // --- CASO 3: Atribuição a um elemento de array (ex: arr[0] = 5) ---
     else if (auto *aa = dynamic_cast<ArrayAccessNode *>(node->lvalue))
     {
-        // a. Avalia a expressão para obter o objeto array
+        // a. Avalia a expressão do array para obter o ArrayValue.
         aa->array_expr->accept(this);
         auto *arr_val = dynamic_cast<ArrayValue *>(last_value);
-
-        // b. Se a expressão não resultou em um array, lança o erro.
         if (!arr_val)
         {
-            throw std::runtime_error("Erro de Execução: Tentativa de atribuição a um tipo que não é um array.");
+            throw std::runtime_error("Erro de Execução: Tentativa de acesso por índice em algo que não é um array.");
         }
 
-        // c. Avalia a expressão do índice
+        // b. Avalia a expressão do índice para obter o valor inteiro.
         aa->index_expr->accept(this);
         auto *idx_val = dynamic_cast<IntValue *>(last_value);
         if (!idx_val)
         {
-            throw std::runtime_error("Erro de Execução: O índice de um array deve ser do tipo Int.");
-        }
-        int index = idx_val->value;
-        if (index < 0 || index >= arr_val->elements.size())
-        {
-            throw std::runtime_error("Erro de Execução: Índice de array (" + std::to_string(index) + ") fora dos limites.");
+            throw std::runtime_error("Erro de Execução: Índice de array deve ser um inteiro.");
         }
 
-        // d. Atribui o valor na posição do array
-        // (Isso assume que o array já foi inicializado com objetos de valor,
-        // mesmo que com valores padrão, o que é feito em visit(VarDeclNode*))
-        Value *dest_val = arr_val->elements.at(index);
-        if (!dest_val)
-        { // Se a posição era nula (ex: array de registros)
-            arr_val->elements[index] = rhs_value;
+        int index = idx_val->value;
+        if (index < 0 || (size_t)index >= arr_val->elements.size())
+        {
+            throw std::runtime_error("Erro de Execução: Índice de array fora dos limites.");
         }
-        else
-        { // Se já existe um valor, atualiza-o
-            if (auto i_dest = dynamic_cast<IntValue *>(dest_val))
-            {
-                if (auto i_src = dynamic_cast<IntValue *>(rhs_value))
-                    i_dest->value = i_src->value;
-            }
-            else if (auto f_dest = dynamic_cast<FloatValue *>(dest_val))
-            {
-                if (auto f_src = dynamic_cast<FloatValue *>(rhs_value))
-                    f_dest->value = f_src->value;
-            } // ... outros tipos primitivos
-            else
-            { // Para tipos complexos, substitui o ponteiro
-                arr_val->elements[index] = rhs_value;
-            }
-        }
+
+        // c. Atualiza o ponteiro do elemento para o novo valor.
+        arr_val->elements[index] = rhs_value;
     }
+    // --- ERRO: Tipo de l-value não suportado ---
     else
     {
-        // Mantém o erro para outros casos não implementados
-        throw std::runtime_error("Erro de Execução: Tipo de atribuição à esquerda desconhecido.");
+        throw std::runtime_error("Erro de Execução: Atribuição à esquerda para este tipo de expressão não é suportada.");
     }
 }
 void Interpreter::visit(PrintCmd *node)
@@ -723,143 +751,171 @@ void Interpreter::visit(UnaryOpNode *node)
 
 void Interpreter::visit(BinaryOpNode *node)
 {
+    // Avalia os operandos esquerdo e direito
     node->left->accept(this);
-    Value *lv = last_value;
+    Value *left_val = last_value;
+
     node->right->accept(this);
-    Value *rv = last_value;
+    Value *right_val = last_value;
 
-    auto li = dynamic_cast<IntValue *>(lv);
-    auto ri = dynamic_cast<IntValue *>(rv);
-    auto lf = dynamic_cast<FloatValue *>(lv);
-    auto rf = dynamic_cast<FloatValue *>(rv);
-    auto lb = dynamic_cast<BoolValue *>(lv);
-    auto rb = dynamic_cast<BoolValue *>(rv);
+    Value *result_val = nullptr;
 
-    Value *res = nullptr;
-
-    auto toFloat = [](IntValue *iv)
-    { return static_cast<float>(iv->value); };
-
-    switch (node->op)
+    // --- BLOCO 1: Tratamento de Igualdade (==) e Desigualdade (!=) ---
+    // Esta lógica é especial porque precisa funcionar para ponteiros (null) e valores.
+    if (node->op == '=' || node->op == 'n')
     {
-    /* --------- aritméticos ---------------------------------- */
-    case '+':
-        if (li && ri)
-            res = new IntValue(li->value + ri->value);
-        else if (lf && rf)
-            res = new FloatValue(lf->value + rf->value);
-        else if (li && rf)
-            res = new FloatValue(toFloat(li) + rf->value);
-        else if (lf && ri)
-            res = new FloatValue(lf->value + toFloat(ri));
-        break;
+        bool are_equal;
 
-    case '-':
-        if (li && ri)
-            res = new IntValue(li->value - ri->value);
-        else if (lf && rf)
-            res = new FloatValue(lf->value - rf->value);
-        else if (li && rf)
-            res = new FloatValue(toFloat(li) - rf->value);
-        else if (lf && ri)
-            res = new FloatValue(lf->value - toFloat(ri));
-        break;
-
-    case '*':
-        if (li && ri)
-            res = new IntValue(li->value * ri->value);
-        else if (lf && rf)
-            res = new FloatValue(lf->value * rf->value);
-        else if (li && rf)
-            res = new FloatValue(toFloat(li) * rf->value);
-        else if (lf && ri)
-            res = new FloatValue(lf->value * toFloat(ri));
-        break;
-
-    case '/':
-        if (li && ri && ri->value != 0)
-            res = new IntValue(li->value / ri->value);
-        else if (lf && rf && rf->value != 0.0f)
-            res = new FloatValue(lf->value / rf->value);
-        else if (li && rf && rf->value != 0.0f)
-            res = new FloatValue(toFloat(li) / rf->value);
-        else if (lf && ri && ri->value != 0)
-            res = new FloatValue(lf->value / toFloat(ri));
-        break;
-
-    case '%':
-        if (li && ri && ri->value != 0)
-            res = new IntValue(li->value % ri->value);
-        break;
-
-    /* --------- relacional < --------------------------------- */
-    case '<':
-        if (li && ri)
-            res = new BoolValue(li->value < ri->value);
-        else if (lf && rf)
-            res = new BoolValue(lf->value < rf->value);
-        else if (li && rf)
-            res = new BoolValue(toFloat(li) < rf->value);
-        else if (lf && ri)
-            res = new BoolValue(lf->value < toFloat(ri));
-        break;
-
-    case '>':
-        if (li && ri)
-            res = new BoolValue(li->value > ri->value);
-        else if (lf && rf)
-            res = new BoolValue(lf->value > rf->value);
-        else if (li && rf)
-            res = new BoolValue(toFloat(li) > rf->value);
-        else if (lf && ri)
-            res = new BoolValue(lf->value > toFloat(ri));
-        break;
-
-    /* --------- lógico && ------------------------------------ */
-    case '&':
-        if (lb && rb)
-            res = new BoolValue(lb->value && rb->value);
-        break;
-
-    /* --------- igualdade / diferença ------------------------ */
-    case '=':
-        if (li && ri)
-            res = new BoolValue(li->value == ri->value);
-        else if (lf && rf)
-            res = new BoolValue(lf->value == rf->value);
-        else if (li && rf)
-            res = new BoolValue(toFloat(li) == rf->value);
-        else if (lf && ri)
-            res = new BoolValue(lf->value == toFloat(ri));
-        else if (lb && rb)
-            res = new BoolValue(lb->value == rb->value);
+        // Primeiro, o caso mais geral: um dos lados é null. Comparamos os ponteiros.
+        if (left_val == nullptr || right_val == nullptr)
+        {
+            are_equal = (left_val == right_val);
+        }
+        // Se ambos não são nulos, tentamos uma comparação de valor mais específica.
         else
-            res = new BoolValue(lv == rv); // ponteiros/null
-        break;
+        {
+            auto li = dynamic_cast<IntValue *>(left_val);
+            auto ri = dynamic_cast<IntValue *>(right_val);
+            if (li && ri)
+            {
+                are_equal = (li->value == ri->value);
+            }
+            else
+            {
+                auto lf = dynamic_cast<FloatValue *>(left_val);
+                auto rf = dynamic_cast<FloatValue *>(right_val);
+                if (lf && rf)
+                {
+                    are_equal = (lf->value == rf->value);
+                }
+                else
+                {
+                    auto lb = dynamic_cast<BoolValue *>(left_val);
+                    auto rb = dynamic_cast<BoolValue *>(right_val);
+                    if (lb && rb)
+                    {
+                        are_equal = (lb->value == rb->value);
+                    }
+                    else
+                    {
+                        auto lc = dynamic_cast<CharValue *>(left_val);
+                        auto rc = dynamic_cast<CharValue *>(right_val);
+                        if (lc && rc)
+                        {
+                            are_equal = (lc->value == rc->value);
+                        }
+                        else
+                        {
+                            // Para tipos complexos (Record, Array), comparamos o endereço de memória.
+                            are_equal = (left_val == right_val);
+                        }
+                    }
+                }
+            }
+        }
 
-    case 'n': /* != */
-        if (li && ri)
-            res = new BoolValue(li->value != ri->value);
-        else if (lf && rf)
-            res = new BoolValue(lf->value != rf->value);
-        else if (li && rf)
-            res = new BoolValue(toFloat(li) != rf->value);
-        else if (lf && ri)
-            res = new BoolValue(lf->value != toFloat(ri));
-        else if (lb && rb)
-            res = new BoolValue(lb->value != rb->value);
-        else
-            res = new BoolValue(lv != rv);
-        break;
+        bool final_result = (node->op == '=') ? are_equal : !are_equal;
+        result_val = new BoolValue(final_result);
+    }
+    // --- BLOCO 2: Tratamento de Operadores Numéricos e Relacionais ---
+    else
+    {
+        // Converte os operandos para os tipos numéricos que nos interessam.
+        auto li = dynamic_cast<IntValue *>(left_val);
+        auto ri = dynamic_cast<IntValue *>(right_val);
+        auto lf = dynamic_cast<FloatValue *>(left_val);
+        auto rf = dynamic_cast<FloatValue *>(right_val);
+
+        auto toFloat = [](IntValue *v)
+        { return static_cast<float>(v->value); };
+
+        switch (node->op)
+        {
+        case '+':
+            if (li && ri)
+                result_val = new IntValue(li->value + ri->value);
+            else if (lf && rf)
+                result_val = new FloatValue(lf->value + rf->value);
+            else if (li && rf)
+                result_val = new FloatValue(toFloat(li) + rf->value);
+            else if (lf && ri)
+                result_val = new FloatValue(lf->value + toFloat(ri));
+            break;
+        case '-':
+            if (li && ri)
+                result_val = new IntValue(li->value - ri->value);
+            else if (lf && rf)
+                result_val = new FloatValue(lf->value - rf->value);
+            else if (li && rf)
+                result_val = new FloatValue(toFloat(li) - rf->value);
+            else if (lf && ri)
+                result_val = new FloatValue(lf->value - toFloat(ri));
+            break;
+        case '*':
+            if (li && ri)
+                result_val = new IntValue(li->value * ri->value);
+            else if (lf && rf)
+                result_val = new FloatValue(lf->value * rf->value);
+            else if (li && rf)
+                result_val = new FloatValue(toFloat(li) * rf->value);
+            else if (lf && ri)
+                result_val = new FloatValue(lf->value * toFloat(ri));
+            break;
+        case '/':
+            if (li && ri)
+                result_val = new IntValue(li->value / ri->value);
+            else if (lf && rf)
+                result_val = new FloatValue(lf->value / rf->value);
+            else if (li && rf)
+                result_val = new FloatValue(toFloat(li) / rf->value);
+            else if (lf && ri)
+                result_val = new FloatValue(lf->value / toFloat(ri));
+            break;
+        case '%':
+            if (li && ri)
+                result_val = new IntValue(li->value % ri->value);
+            break;
+        case '<':
+            if (li && ri)
+                result_val = new BoolValue(li->value < ri->value);
+            else if (lf && rf)
+                result_val = new BoolValue(lf->value < rf->value);
+            else if (li && rf)
+                result_val = new BoolValue(toFloat(li) < rf->value);
+            else if (lf && ri)
+                result_val = new BoolValue(lf->value < toFloat(ri));
+            break;
+        case '>':
+            if (li && ri)
+                result_val = new BoolValue(li->value > ri->value);
+            else if (lf && rf)
+                result_val = new BoolValue(lf->value > rf->value);
+            else if (li && rf)
+                result_val = new BoolValue(toFloat(li) > rf->value);
+            else if (lf && ri)
+                result_val = new BoolValue(lf->value > toFloat(ri));
+            break;
+        case '&': // Operador lógico '&&'
+            auto lb = dynamic_cast<BoolValue *>(left_val);
+            auto rb = dynamic_cast<BoolValue *>(right_val);
+            if (lb && rb)
+                result_val = new BoolValue(lb->value && rb->value);
+            break;
+        }
     }
 
-    if (res)
+    // --- Finalização ---
+    if (result_val)
     {
-        last_value = res;
-        value_pool.push_back(res);
+        last_value = result_val;
+        value_pool.push_back(result_val);
+    }
+    else
+    {
+        // Se nenhuma regra funcionou, os tipos são incompatíveis para a operação.
+        throw std::runtime_error("Erro de Execução: Operação binária entre tipos incompatíveis.");
     }
 }
-
 void Interpreter::visit(TypeNode *node) {}
 
 void Interpreter::visit(NullLiteralNode * /*node*/)
