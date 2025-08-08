@@ -5,6 +5,34 @@
 #include <iostream>
 #include <cstring>
 #include <cstdio>
+#include <typeinfo>
+#include <sstream>
+// [PATCH] Helper: clone primitive values to avoid aliasing when assigning/returning
+static Value* clone_primitive_or_self(Value* v){
+    if(auto iv = dynamic_cast<IntValue*>(v))   return new IntValue(iv->value);
+    if(auto fv = dynamic_cast<FloatValue*>(v)) return new FloatValue(fv->value);
+    if(auto bv = dynamic_cast<BoolValue*>(v))  return new BoolValue(bv->value);
+    if(auto cv = dynamic_cast<CharValue*>(v))  return new CharValue(cv->value);
+    return v;
+}
+
+
+static const char* vname(Value* v){
+    if(!v) return "null";
+    if(dynamic_cast<IntValue*>(v)) return "Int";
+    if(dynamic_cast<FloatValue*>(v)) return "Float";
+    if(dynamic_cast<BoolValue*>(v)) return "Bool";
+    if(dynamic_cast<CharValue*>(v)) return "Char";
+    if(dynamic_cast<RecordValue*>(v)) return "Record";
+    if(dynamic_cast<ArrayValue*>(v)) return "Array";
+    return "Value";
+}
+
+#ifdef INTERP_TRACE
+  #define TRACE(msg) do { std::cerr << "[TRACE] " << msg << "\n"; } while(0)
+#else
+  #define TRACE(msg) do { } while(0)
+#endif
 
 Value *Interpreter::create_default_value(TypeNode *type)
 {
@@ -281,63 +309,63 @@ void Interpreter::visit(DataDefNode *node)
 /**
  * @brief Visita um nó de alocação 'new', usando os métodos auxiliares.
  */
-// Em Interpreter.cpp
 void Interpreter::visit(NewExprNode *node)
 {
-    // Caso 1: Alocação de objeto único (ex: new AFD ou new Transition)
+    TRACE("visit NewExprNode");
+    TRACE("NewExpr start");
+
+    // new AFD (objeto único)
     if (node->dims.empty())
     {
         if (node->base_type->is_primitive)
-        {
-            throw std::runtime_error("Erro de Execução: 'new' em tipo primitivo deve ser uma alocação de array.");
-        }
+            throw std::runtime_error("Erro de Execução: 'new' em tipo primitivo requer tamanho (ex.: new Int[n]).");
+
         last_value = create_default_value(node->base_type);
+        TRACE(std::string("New record: ") + vname(last_value));
         return;
     }
 
-    // Caso 2: Alocação de Array ou Matriz (ex: new Int[5] ou new Transition[][numStates])
-    // A lógica abaixo foi adaptada para a sintaxe do professor.
-
-    // A sintaxe `new T[][size]` é incomum. Nossa interpretação é que o tamanho
-    // da dimensão mais externa está sendo especificado por último.
-    // Vamos procurar pela última expressão de dimensão que não seja nula.
-    Expression *size_expr = nullptr;
-    for (auto it = node->dims.rbegin(); it != node->dims.rend(); ++it)
-    {
-        if (*it != nullptr)
-        {
-            size_expr = *it;
-            break;
-        }
+    // usa a ÚLTIMA dimensão não-nula como tamanho (ex.: [] [n] -> usa n)
+    int last_idx = -1;
+    for (int idx = (int)node->dims.size()-1; idx >= 0; --idx) {
+        if (node->dims[idx] != nullptr) { last_idx = idx; break; }
     }
+    if (last_idx < 0)
+        throw std::runtime_error("Erro de Execução: Pelo menos uma dimensão deve especificar o tamanho.");
 
-    // Se nenhuma dimensão foi especificada (ex: new T[][]), é um erro em tempo de execução.
-    if (!size_expr)
-    {
-        throw std::runtime_error("Erro de Execução: Alocação de array requer pelo menos um tamanho de dimensão.");
-    }
-
-    // Avalia a expressão de tamanho que encontramos.
-    size_expr->accept(this);
+    node->dims[last_idx]->accept(this);
     auto *size_val = dynamic_cast<IntValue *>(last_value);
     if (!size_val || size_val->value < 0)
-    {
         throw std::runtime_error("Erro de Execução: Tamanho do array inválido.");
-    }
 
-    size_t size = size_val->value;
-
-    // Cria o array externo com o tamanho encontrado e o preenche com `nullptr`.
-    // As dimensões internas serão alocadas depois (ex: em setNumTransitions).
+    const size_t size = static_cast<size_t>(size_val->value);
     auto *arr_val = new ArrayValue();
     value_pool.push_back(arr_val);
-    arr_val->elements.resize(size, nullptr); // Redimensiona e preenche com ponteiros nulos
 
+    // Array 1D de primitivo -> inicializa com valor padrão (0, false, '\0', ...)
+    if (node->dims.size() == 1 && node->base_type->is_primitive)
+    {
+        arr_val->elements.reserve(size);
+        for (size_t i = 0; i < size; ++i)
+            arr_val->elements.push_back(create_default_value(node->base_type));
+        last_value = arr_val;
+        TRACE(std::string("New primitive array size=") + std::to_string(size));
+        return;
+    }
+
+    // Caso geral (matriz ou array de registros): inicia com nullptrs
+    arr_val->elements.resize(size, nullptr);
     last_value = arr_val;
+    TRACE(std::string("New array (com nullptrs) size=") + std::to_string(size));
 }
+
+
+
+
 void Interpreter::visit(FunDefNode *node) { functions[node->name] = node; }
 void Interpreter::visit(FunCallNode *node)
 {
+    TRACE(std::string("CallExpr ")+node->name);
     if (!functions.count(node->name))
     {
         return;
@@ -373,7 +401,14 @@ void Interpreter::visit(FunCallNode *node)
             {
                 if (idx_val->value >= 0 && idx_val->value < ret.values.size())
                 {
-                    last_value = ret.values[idx_val->value];
+                    do { Value* __rv = ret.values[idx_val->value];
+    if (auto iv = dynamic_cast<IntValue*>(__rv)) last_value = new IntValue(iv->value);
+    else if (auto fv = dynamic_cast<FloatValue*>(__rv)) last_value = new FloatValue(fv->value);
+    else if (auto bv = dynamic_cast<BoolValue*>(__rv)) last_value = new BoolValue(bv->value);
+    else if (auto cv = dynamic_cast<CharValue*>(__rv)) last_value = new CharValue(cv->value);
+    else last_value = __rv;
+    value_pool.push_back(last_value);
+} while(0);
                 }
                 else
                 {
@@ -392,8 +427,11 @@ void Interpreter::visit(FunCallNode *node)
     }
     pop_scope();
 }
+
 void Interpreter::visit(FunCallCmdNode *node)
 {
+    TRACE(std::string("CallCmd ")+node->name);
+
     if (!functions.count(node->name))
     {
         return;
@@ -407,51 +445,83 @@ void Interpreter::visit(FunCallCmdNode *node)
     }
     if (evaluated_args.size() != func_def->params.size())
     {
-        return;
+        throw std::runtime_error("Erro de Execução: Aridade incorreta na chamada de função.");
     }
+
     push_scope();
-    for (size_t i = 0; i < func_def->params.size(); ++i)
+    for (std::size_t i = 0; i < func_def->params.size(); ++i)
     {
         set_variable(func_def->params[i].name, evaluated_args[i], true);
     }
+
+    std::vector<Value*> retvals;
+    bool did_return = false;
     try
     {
         func_def->body->accept(this);
     }
     catch (const ReturnSignal &ret)
     {
-        if (node->lvalues.size() > 0 && node->lvalues.size() == ret.values.size())
+        retvals = ret.values;
+        did_return = true;
+    }
+    pop_scope();
+
+    if (did_return && node->lvalues.size() > 0 && node->lvalues.size() == retvals.size())
+    {
+        for (size_t i = 0; i < node->lvalues.size(); ++i)
         {
-            for (size_t i = 0; i < node->lvalues.size(); ++i)
+            if (auto var_access = dynamic_cast<VarAccessNode *>(node->lvalues[i]))
             {
-                if (auto var_access = dynamic_cast<VarAccessNode *>(node->lvalues[i]))
+                if (get_variable(var_access->name) == nullptr || (memory_stack.back().count(var_access->name) == 0))
                 {
-                    update_variable(var_access->name, ret.values[i]);
+                    if (auto iv = dynamic_cast<IntValue*>(retvals[i]))       set_variable(var_access->name, new IntValue(iv->value), true);
+                    else if (auto fv = dynamic_cast<FloatValue*>(retvals[i])) set_variable(var_access->name, new FloatValue(fv->value), true);
+                    else if (auto bv = dynamic_cast<BoolValue*>(retvals[i]))  set_variable(var_access->name, new BoolValue(bv->value), true);
+                    else if (auto cv = dynamic_cast<CharValue*>(retvals[i]))  set_variable(var_access->name, new CharValue(cv->value), true);
+                    else                                                       set_variable(var_access->name, retvals[i], true);
                 }
+                else
+                {
+                    update_variable(var_access->name, retvals[i]);
+                }
+            }
+            else
+            {
+                set_variable("__tmp_ret", retvals[i], true);
+                AssignCmdNode tmp(node->lvalues[i], new VarAccessNode("__tmp_ret"));
+                this->visit(&tmp);
+                memory_stack.back().erase("__tmp_ret");
             }
         }
     }
-    pop_scope();
 }
+
+
+
 void Interpreter::visit(FieldAccessNode *node)
 {
+    TRACE("FieldAccess start");
     node->record_expr->accept(this);
     auto *rec_val = dynamic_cast<RecordValue *>(last_value);
 
-    if (!rec_val)
-    {
+    if (!rec_val) {
+        TRACE("FieldAccess on null record (returning null)");
         last_value = nullptr;
         return;
     }
 
-    if (!rec_val->fields.count(node->field_name))
-    {
-        last_value = nullptr; // campo inexistente
+    if (!rec_val->fields.count(node->field_name)) {
+        TRACE(std::string("Field '") + node->field_name + "' not found (returning null)");
+        last_value = nullptr;
         return;
     }
 
     last_value = rec_val->fields[node->field_name];
+    TRACE(std::string("Field '") + node->field_name + "' value: " + vname(last_value));
 }
+
+
 void Interpreter::visit(ReturnCmdNode *node)
 {
     ReturnSignal ret_signal;
@@ -559,17 +629,27 @@ void Interpreter::visit(AssignCmdNode *node)
     // --- CASO 1: Atribuição a uma variável simples (ex: x = 10) ---
     if (auto *va = dynamic_cast<VarAccessNode *>(node->lvalue))
     {
-        // Se a variável já existe na memória, atualiza seu valor.
-        if (get_variable(va->name))
+        // [PATCH] evaluate RHS once
+        node->expr->accept(this);
+        Value *rhs_value = last_value;
+
+        // [PATCH] if not in current scope, create local variable (shadow outer), cloning primitives
+        bool in_current_scope = (!memory_stack.empty() && memory_stack.back().count(va->name) > 0);
+        if (!in_current_scope)
         {
-            update_variable(va->name, rhs_value);
+            if (auto iv = dynamic_cast<IntValue*>(rhs_value))       set_variable(va->name, new IntValue(iv->value), true);
+            else if (auto fv = dynamic_cast<FloatValue*>(rhs_value)) set_variable(va->name, new FloatValue(fv->value), true);
+            else if (auto bv = dynamic_cast<BoolValue*>(rhs_value))  set_variable(va->name, new BoolValue(bv->value), true);
+            else if (auto cv = dynamic_cast<CharValue*>(rhs_value))  set_variable(va->name, new CharValue(cv->value), true);
+            else                                                     set_variable(va->name, rhs_value, true);
+            return;
         }
-        else
-        {
-            // Se não existe (inferência de tipo), cria no escopo atual.
-            set_variable(va->name, rhs_value, /*is_decl=*/true);
-        }
+
+        // [PATCH] otherwise update in innermost scope
+        update_variable(va->name, rhs_value);
+        return;
     }
+
     // --- CASO 2: Atribuição a um campo de registro (ex: last.next = no) ---
     else if (auto *fa = dynamic_cast<FieldAccessNode *>(node->lvalue))
     {
@@ -589,8 +669,15 @@ void Interpreter::visit(AssignCmdNode *node)
         }
 
         // c. Atualiza o ponteiro do campo para o novo valor.
-        record->fields[fa->field_name] = rhs_value;
+        Value* v = rhs_value;
+        if (auto iv = dynamic_cast<IntValue*>(v))       v = new IntValue(iv->value);
+        else if (auto fv = dynamic_cast<FloatValue*>(v)) v = new FloatValue(fv->value);
+        else if (auto bv = dynamic_cast<BoolValue*>(v))  v = new BoolValue(bv->value);
+        else if (auto cv = dynamic_cast<CharValue*>(v))  v = new CharValue(cv->value);
+        // registros/arrays continuam por referência
+        record->fields[fa->field_name] = v;
     }
+
     // --- CASO 3: Atribuição a um elemento de array (ex: arr[0] = 5) ---
     else if (auto *aa = dynamic_cast<ArrayAccessNode *>(node->lvalue))
     {
@@ -617,23 +704,32 @@ void Interpreter::visit(AssignCmdNode *node)
         }
 
         // c. Atualiza o ponteiro do elemento para o novo valor.
-        arr_val->elements[index] = rhs_value;
+        Value* v = rhs_value;
+        if (auto iv = dynamic_cast<IntValue*>(v))       v = new IntValue(iv->value);
+        else if (auto fv = dynamic_cast<FloatValue*>(v)) v = new FloatValue(fv->value);
+        else if (auto bv = dynamic_cast<BoolValue*>(v))  v = new BoolValue(bv->value);
+        else if (auto cv = dynamic_cast<CharValue*>(v))  v = new CharValue(cv->value);
+        arr_val->elements[index] = v;
     }
+    
     // --- ERRO: Tipo de l-value não suportado ---
     else
     {
         throw std::runtime_error("Erro de Execução: Atribuição à esquerda para este tipo de expressão não é suportada.");
     }
 }
+
 void Interpreter::visit(PrintCmd *node)
 {
     node->expr->accept(this);
-    if (last_value)
-    {
-        last_value->print();
-        std::cout << std::endl;
+    if (last_value) {
+        last_value->print();  // não adiciona \n aqui
+    } else {
+        // null: não imprime nada
     }
 }
+
+
 void Interpreter::visit(ReadCmdNode *node)
 {
     if (auto va = dynamic_cast<VarAccessNode *>(node->lvalue))
@@ -713,7 +809,11 @@ void Interpreter::visit(BoolLiteralNode *node)
     last_value = new BoolValue(node->value);
     value_pool.push_back(last_value);
 }
-void Interpreter::visit(VarAccessNode *node) { last_value = get_variable(node->name); }
+void Interpreter::visit(VarAccessNode *node) {
+    TRACE(std::string("VarAccess ") + node->name);
+    last_value = get_variable(node->name);
+    TRACE(std::string("VarValue ") + vname(last_value));
+}
 void Interpreter::visit(UnaryOpNode *node)
 {
     node->expr->accept(this);
@@ -751,7 +851,7 @@ void Interpreter::visit(UnaryOpNode *node)
 
 void Interpreter::visit(BinaryOpNode *node)
 {
-    // Avalia os operandos esquerdo e direito
+    TRACE(std::string("BinaryOp op=") + char(node->op));
     node->left->accept(this);
     Value *left_val = last_value;
 
@@ -916,6 +1016,7 @@ void Interpreter::visit(BinaryOpNode *node)
         throw std::runtime_error("Erro de Execução: Operação binária entre tipos incompatíveis.");
     }
 }
+
 void Interpreter::visit(TypeNode *node) {}
 
 void Interpreter::visit(NullLiteralNode * /*node*/)
@@ -925,26 +1026,27 @@ void Interpreter::visit(NullLiteralNode * /*node*/)
 
 void Interpreter::visit(ArrayAccessNode *node)
 {
+    TRACE("visit ArrayAccessNode");
     node->array_expr->accept(this);
     auto *arr_val = dynamic_cast<ArrayValue *>(last_value);
-    if (!arr_val)
-    {
-        // Lança um erro claro em vez de retornar em silêncio
-        throw std::runtime_error("Erro de execução: tentativa de indexar um tipo que não é um array.");
+    TRACE(std::string("Array expr value: ") + vname(last_value));
+    if (!arr_val) {
+        // array é null -> retorna null e deixa o chamador decidir (ex.: == null)
+        TRACE("Array expr is null (returning null)");
+        last_value = nullptr;
+        return;
     }
 
     node->index_expr->accept(this);
     auto *idx_val = dynamic_cast<IntValue *>(last_value);
     if (!idx_val)
-    {
-        throw std::runtime_error("Erro de execução: o índice de um array deve ser do tipo Int.");
-    }
+        throw std::runtime_error("Erro de execução: o índice de um array deve ser Int.");
 
-    if (idx_val->value < 0 || idx_val->value >= arr_val->elements.size())
-    {
-        // Erro de "out-of-bounds"
-        throw std::runtime_error("Erro de execução: Índice de array (" + std::to_string(idx_val->value) + ") fora dos limites [0, " + std::to_string(arr_val->elements.size() - 1) + "].");
-    }
+    if (idx_val->value < 0 || static_cast<size_t>(idx_val->value) >= arr_val->elements.size())
+        throw std::runtime_error("Erro de execução: índice fora dos limites do array.");
 
-    last_value = arr_val->elements[idx_val->value];
+    // elemento pode ser null (ex.: antes de m.st[st] = new Transition[n])
+    last_value = arr_val->elements[static_cast<size_t>(idx_val->value)];
+    TRACE(std::string("Array elem: ") + vname(last_value));
 }
+

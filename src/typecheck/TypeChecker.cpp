@@ -3,6 +3,11 @@
 #include <stdexcept>
 #include <memory>
 #include <sstream>
+#include <iostream>
+
+#ifndef TCTRACE
+  #define TCTRACE(msg) do { std::cerr << "[TC] " << msg << "\n"; } while(0)
+#endif
 
 /* =============================================================
  *  Helper para mensagens
@@ -496,28 +501,42 @@ void TypeChecker::visit(FunCallCmdNode *n)
             *param = *arg;
         else if (arg->is_unknown())
             *arg = *param;
-        else if (arg->to_string() != param->to_string())
-            throw std::runtime_error("Tipo do argumento " + idx_str(i) + " incompatível na chamada de '" + n->name + "'.");
+        else if (param->to_string() != arg->to_string())
+            throw std::runtime_error("Tipo de argumento incompatível na chamada de '" + n->name + "'.");
     }
 
-    // ----- captura -----
-    if (f->return_types.size() != n->lvalues.size())
-        throw std::runtime_error("Captura de retorno não coincide com quantidade de valores de saída de '" + n->name + "'.");
+    // ----- lvalues -----
+    if (n->lvalues.size() != f->return_types.size())
+        throw std::runtime_error("Aridade de retorno incorreta na chamada de '" + n->name + "'.");
 
     for (std::size_t i = 0; i < n->lvalues.size(); ++i)
     {
-        n->lvalues[i]->accept(this); // tipo do lvalue colocado em last_inferred_type
-        auto lhs = last_inferred_type;
         auto rhs = f->return_types[i];
+
+        // se lvalue é identificador não declarado, declara implicitamente
+        if (auto var_acc = dynamic_cast<VarAccessNode*>(n->lvalues[i]))
+        {
+            auto existing = get_variable_type(var_acc->name);
+            if (!existing)
+            {
+                add_variable(var_acc->name, rhs);
+                continue;
+            }
+        }
+
+        // checagem padrão para lvalues existentes (ou acessos compostos)
+        n->lvalues[i]->accept(this);
+        auto lhs = last_inferred_type;
 
         if (lhs->is_unknown())
             *lhs = *rhs;
         else if (rhs->is_unknown())
             *rhs = *lhs;
         else if (lhs->to_string() != rhs->to_string())
-            throw std::runtime_error("Tipo incompatível ao capturar retorno " + idx_str(i) + " de '" + n->name + "'.");
+            throw std::runtime_error("Tipo incompatível ao capturar retorno [" + std::to_string(i) + "] de '" + n->name + "'.");
     }
 }
+
 void TypeChecker::visit(ReturnCmdNode *n)
 {
     if (!current_function_type)
@@ -586,26 +605,28 @@ void TypeChecker::visit(ReadCmdNode *node) { /* TODO */ }
 void TypeChecker::visit(IterateCmdNode *node) { /* TODO */ }
 void TypeChecker::visit(NewExprNode *node)
 {
-    // 1. Começa com o tipo base (ex: Int, Ponto)
+    TCTRACE("visit NewExprNode");
+
+    // 1) tipo base (ex.: Int, Transition, AFD, etc.)
     std::shared_ptr<Type> current_type = type_from_node(node->base_type);
 
-    // 2. Para cada dimensão encontrada (ex: [5], [10]), "envolve" o tipo
-    //    atual com um ArrayType.
+    // 2) cada "[]" envolve o tipo em ArrayType;
+    //    se tiver expressão, ela deve ser Int; se for omitida ([]), só envolve.
     for (auto dim_expr : node->dims)
     {
-        // Valida que a expressão da dimensão é um Int
-        dim_expr->accept(this);
-        if (last_inferred_type->to_string() != "Int")
-        {
-            throw std::runtime_error("Erro de Tipo: Dimensões de um array devem ser do tipo Int.");
+        if (dim_expr) {
+            dim_expr->accept(this);
+            if (!last_inferred_type || last_inferred_type->to_string() != "Int") {
+                throw std::runtime_error("Erro de Tipo: Dimensões de um array devem ser do tipo Int.");
+            }
         }
-        // Envolve o tipo atual
         current_type = std::make_shared<ArrayType>(current_type);
     }
 
-    // O tipo final da expressão é o tipo base com todas as dimensões
     last_inferred_type = current_type;
 }
+
+
 void TypeChecker::visit(FieldAccessNode *node)
 {
     /* avalia o tipo da expressão antes do ponto --------------- */
