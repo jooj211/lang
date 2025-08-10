@@ -1,0 +1,10 @@
+sum_and_diff(a :: Int, b :: Int) : Int, Int {
+  return a + b, a - b;
+}
+
+main() {
+  x :: Int; y :: Int;
+  sum_and_diff(9, 4) < x, y >;
+  print x; print ' '; print y; print '\n';
+  print sum_and_diff(9,4)[0]; print ' '; print sum_and_diff(9,4)[1]; print '\n';
+}

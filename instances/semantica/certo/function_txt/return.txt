@@ -1,12 +1,12 @@
-fn() : Int,Char,Bool {
+fn() : Int,Char {
     return 2+1, 'a', false;
 }
 
 
 main() {
-    x = fn()[0];
-    y = fn()[1];
-    z = fn()[2];
+    x = fn()[2];
+    y = fn()[0];
+    z = fn()[1];
     print x;
     print '\n';
     print y;

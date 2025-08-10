@@ -1,0 +1,178 @@
+diff a/src/interpreter/Interpreter.cpp b/src/interpreter/Interpreter.cpp	(rejected hunks)
+@@ -7,6 +7,7 @@
+ #include <cstdio>
+ #include <typeinfo>
+ #include <sstream>
++//#define INTERP_TRACE 0
+ // [PATCH] Helper: clone primitive values to avoid aliasing when assigning/returning
+ static Value* clone_primitive_or_self(Value* v){
+     if(auto iv = dynamic_cast<IntValue*>(v))   return new IntValue(iv->value);
+@@ -28,11 +29,14 @@ static const char* vname(Value* v){
+     return "Value";
+ }
+ 
+-#ifdef INTERP_TRACE
++/*#ifdef INTERP_TRACE
+   #define TRACE(msg) do { std::cerr << "[TRACE] " << msg << "\n"; } while(0)
+ #else
+   #define TRACE(msg) do { } while(0)
+-#endif
++#endif */
++
++#define TRACE(msg) do { } while(0)
++
+ 
+ Value *Interpreter::create_default_value(TypeNode *type)
+ {
+@@ -385,7 +389,7 @@ void Interpreter::visit(FunCallNode *node)
+     push_scope();
+     for (size_t i = 0; i < func_def->params.size(); ++i)
+     {
+-        set_variable(func_def->params[i].name, evaluated_args[i], true);
++        set_variable(func_def->params[i].name, clone_primitive_or_self(evaluated_args[i]), true);
+     }
+     try
+     {
+@@ -394,20 +398,23 @@ void Interpreter::visit(FunCallNode *node)
+     }
+     catch (const ReturnSignal &ret)
+     {
++
++TRACE("ReturnSignal caught");
++
+         if (!ret.values.empty())
+         {
+-            node->return_index->accept(this);
++            TRACE("before index accept"); node->return_index->accept(this); TRACE("after index accept");
+             if (auto idx_val = dynamic_cast<IntValue *>(last_value))
+             {
+                 if (idx_val->value >= 0 && idx_val->value < ret.values.size())
+                 {
+-                    do { Value* __rv = ret.values[idx_val->value];
+-    if (auto iv = dynamic_cast<IntValue*>(__rv)) last_value = new IntValue(iv->value);
+-    else if (auto fv = dynamic_cast<FloatValue*>(__rv)) last_value = new FloatValue(fv->value);
+-    else if (auto bv = dynamic_cast<BoolValue*>(__rv)) last_value = new BoolValue(bv->value);
+-    else if (auto cv = dynamic_cast<CharValue*>(__rv)) last_value = new CharValue(cv->value);
+-    else last_value = __rv;
+-    value_pool.push_back(last_value);
++                    do {
++    Value* __rv = ret.values[idx_val->value];
++    if (auto iv = dynamic_cast<IntValue*>(__rv)) { last_value = new IntValue(iv->value); value_pool.push_back(last_value); }
++    else if (auto fv = dynamic_cast<FloatValue*>(__rv)) { last_value = new FloatValue(fv->value); value_pool.push_back(last_value); }
++    else if (auto bv = dynamic_cast<BoolValue*>(__rv)) { last_value = new BoolValue(bv->value); value_pool.push_back(last_value); }
++    else if (auto cv = dynamic_cast<CharValue*>(__rv)) { last_value = new CharValue(cv->value); value_pool.push_back(last_value); }
++    else { last_value = __rv; /* reuse existing heap object; don't push again */ }
+ } while(0);
+                 }
+                 else
+@@ -424,7 +431,9 @@ void Interpreter::visit(FunCallNode *node)
+         {
+             last_value = nullptr;
+         }
+-    }
++
++
++}
+     pop_scope();
+ }
+ 
+@@ -449,10 +458,9 @@ void Interpreter::visit(FunCallCmdNode *node)
+     }
+ 
+     push_scope();
+-    for (std::size_t i = 0; i < func_def->params.size(); ++i)
+-    {
+-        set_variable(func_def->params[i].name, evaluated_args[i], true);
+-    }
++    for (std::size_t i = 0; i < func_def->params.size(); ++i) {
++    memory_stack.back()[func_def->params[i].name] = clone_primitive_or_self(evaluated_args[i]);
++}
+ 
+     std::vector<Value*> retvals;
+     bool did_return = false;
+@@ -488,10 +496,10 @@ void Interpreter::visit(FunCallCmdNode *node)
+             }
+             else
+             {
+-                set_variable("__tmp_ret", retvals[i], true);
+-                AssignCmdNode tmp(node->lvalues[i], new VarAccessNode("__tmp_ret"));
++                set_variable(std::string("__tmp_ret"), retvals[i], true);
++                AssignCmdNode tmp(node->lvalues[i], new VarAccessNode(strdup("__tmp_ret")));
+                 this->visit(&tmp);
+-                memory_stack.back().erase("__tmp_ret");
++                memory_stack.back().erase(std::string("__tmp_ret"));
+             }
+         }
+     }
+@@ -535,11 +543,16 @@ void Interpreter::visit(ReturnCmdNode *node)
+ void Interpreter::visit(BlockCmdNode *node)
+ {
+     push_scope();
+-    for (Command *cmd : node->commands)
++    try {
++for (Command *cmd : node->commands)
+     {
+         cmd->accept(this);
+     }
+     pop_scope();
++} catch (const ReturnSignal &ret) {
++    pop_scope();
++    throw;
++}
+ }
+ 
+ void Interpreter::visit(VarDeclNode *node)
+@@ -629,24 +642,22 @@ void Interpreter::visit(AssignCmdNode *node)
+     // --- CASO 1: Atribuição a uma variável simples (ex: x = 10) ---
+     if (auto *va = dynamic_cast<VarAccessNode *>(node->lvalue))
+     {
+-        // [PATCH] evaluate RHS once
+-        node->expr->accept(this);
+-        Value *rhs_value = last_value;
+-
+-        // [PATCH] if not in current scope, create local variable (shadow outer), cloning primitives
+-        bool in_current_scope = (!memory_stack.empty() && memory_stack.back().count(va->name) > 0);
+-        if (!in_current_scope)
++                // Look up variable anywhere in scope chain
++        Value *existing = get_variable(va->name);
++        if (existing == nullptr)
+         {
++            // Declare in current scope
+             if (auto iv = dynamic_cast<IntValue*>(rhs_value))       set_variable(va->name, new IntValue(iv->value), true);
+             else if (auto fv = dynamic_cast<FloatValue*>(rhs_value)) set_variable(va->name, new FloatValue(fv->value), true);
+             else if (auto bv = dynamic_cast<BoolValue*>(rhs_value))  set_variable(va->name, new BoolValue(bv->value), true);
+             else if (auto cv = dynamic_cast<CharValue*>(rhs_value))  set_variable(va->name, new CharValue(cv->value), true);
+             else                                                     set_variable(va->name, rhs_value, true);
+-            return;
+         }
+-
+-        // [PATCH] otherwise update in innermost scope
+-        update_variable(va->name, rhs_value);
++        else
++        {
++            // Update existing (mutate primitive values in place)
++            update_variable(va->name, rhs_value);
++        }
+         return;
+     }
+ 
+@@ -789,8 +800,7 @@ void Interpreter::visit(IterateCmdNode *node)
+     if (hlv)
+         pop_scope();
+ }
+-void Interpreter::visit(IntLiteral *node)
+-{
++void Interpreter::visit(IntLiteral *node){ TRACE(std::string("IntLiteral ")+std::to_string(node->value));
+     last_value = new IntValue(node->value);
+     value_pool.push_back(last_value);
+ }
+@@ -799,8 +809,7 @@ void Interpreter::visit(FloatLiteralNode *node)
+     last_value = new FloatValue(node->value);
+     value_pool.push_back(last_value);
+ }
+-void Interpreter::visit(CharLiteralNode *node)
+-{
++void Interpreter::visit(CharLiteralNode *node){ TRACE(std::string("CharLiteral ")+(char)node->value);
+     last_value = new CharValue(node->value);
+     value_pool.push_back(last_value);
+ }

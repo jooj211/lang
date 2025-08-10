@@ -1,0 +1,53 @@
+
+readArr( v :: Int[], sz :: Int){
+    i = 0;
+    iterate(sz){
+        read x;
+        v[i] = x;
+        i = i + 1;
+    }
+}
+
+printArr(v :: Int [],  sz :: Int){
+    print '{';
+    if(0 < sz){
+        print v[0];
+        i = 1;
+        iterate(sz-1){
+            print ',';
+            print v[i];
+            i = i + 1;
+        }
+    }
+    print '}';
+    print '\n';
+}
+
+main() {
+    x = 0;
+    v = new Int[10];
+    readArr(v,10);
+    printArr(v,10);
+    sort(v,10);
+    printArr(v,10);
+}
+
+sort(v :: Int[], sz :: Int){
+     i = 0;
+     j = 0;
+     k = 0;
+     aux = 0;
+     iterate(sz){
+        j = i + 1;
+        k = i;
+        iterate(sz - j){
+            if(v[j] < v[k])
+               k = j;
+            j = j + 1;
+        }
+        aux = v[i];
+        v[i] = v[k];
+        v[k] = aux;
+        i = i + 1;
+     }
+}

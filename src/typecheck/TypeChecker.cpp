@@ -6,7 +6,9 @@
 #include <iostream>
 
 #ifndef TCTRACE
-  #define TCTRACE(msg) do { std::cerr << "[TC] " << msg << "\n"; } while(0)
+  //#define TCTRACE(msg) do { std::cerr << "[TC] " << msg << "\n"; } while(0)
+  #define TCTRACE(msg) do { } while(0)
+
 #endif
 
 /* =============================================================
@@ -111,59 +113,67 @@ void TypeChecker::check(ProgramNode *ast)
 
 void TypeChecker::visit(ProgramNode *node)
 {
-    // --- PASSO 1: Registrar Nomes de Tipos ---
-    // Passamos uma vez por todas as definições de 'data' para registrar apenas
-    // seus nomes. Isso resolve o problema de recursão.
+    // PASSO 1: Registrar nomes de tipos (data)
     for (Node *def : node->definitions)
     {
         if (auto data_def = dynamic_cast<DataDefNode *>(def))
         {
-            if (record_types.count(data_def->name))
-            {
-                throw std::runtime_error("Erro Semântico: Tipo '" + data_def->name + "' já definido.");
-            }
-            // Adiciona um tipo de registro "vazio" ao mapa, apenas com o nome.
-            record_types[data_def->name] = std::make_shared<RecordType>(data_def->name);
+            if (!record_types.count(data_def->name))
+                record_types[data_def->name] = std::make_shared<RecordType>(data_def->name);
         }
     }
 
-    // --- PASSO 2: Preencher os Campos dos Tipos ---
-    // Agora que todos os nomes de tipos são conhecidos, passamos novamente para
-    // analisar e preencher os campos de cada registro.
+    // PASSO 2: Preencher campos dos tipos (data)
     for (Node *def : node->definitions)
     {
         if (auto data_def = dynamic_cast<DataDefNode *>(def))
-        {
-            data_def->accept(this); // Chama o novo visit(DataDefNode*)
-        }
+            data_def->accept(this);
     }
 
-    // --- PASSO 3: Registrar Assinaturas de Funções ---
-    // A análise das funções só ocorre após todos os tipos estarem definidos.
+    // PASSO 3: Registrar assinaturas das funções (params/returns)
     for (Node *def : node->definitions)
     {
         if (auto fun_def = dynamic_cast<FunDefNode *>(def))
         {
-            fun_def->accept(this);
+            auto f = std::make_shared<FunctionType>();
+            for (auto &p : fun_def->params)  f->param_types.push_back(type_from_node(p.type));
+            for (auto *r : fun_def->return_types) f->return_types.push_back(type_from_node(r));
+            if (function_types.count(fun_def->name))
+                throw std::runtime_error("Erro Semântico: Função '" + fun_def->name + "' já definida.");
+            function_types[fun_def->name] = f;
         }
     }
 
-    // --- PASSO 4: Verificar os Corpos das Funções ---
+    // PASSO 4: Checar corpos das funções com current_function_type e params no escopo
     for (Node *def : node->definitions)
     {
         if (auto fun_def = dynamic_cast<FunDefNode *>(def))
         {
-            current_function_type = function_types[fun_def->name];
+            current_function_type = function_types.at(fun_def->name);
             push_scope();
-            for (const auto &param : fun_def->params)
-            {
-                add_variable(param.name, type_from_node(param.type));
-            }
+            for (auto &p : fun_def->params)
+                add_variable(p.name, type_from_node(p.type));
             fun_def->body->accept(this);
             pop_scope();
+            current_function_type.reset();
         }
     }
+
+    // DEBUG: print function signatures
+    for (auto &kv : function_types) {
+        std::stringstream ss;
+        ss << "fun " << kv.first << " returns [";
+        for (size_t i=0;i<kv.second->return_types.size();++i){
+            if (kv.second->return_types[i]) ss << kv.second->return_types[i]->to_string();
+            else ss << "<null>";
+            if (i+1<kv.second->return_types.size()) ss << ", ";
+        }
+        ss << "]";
+        TCTRACE(ss.str());
+    }
 }
+
+
 
 void TypeChecker::visit(DataDefNode *node)
 {
@@ -219,6 +229,8 @@ void TypeChecker::visit(VarDeclNode *node)
 
 void TypeChecker::visit(AssignCmdNode *node)
 {
+    TCTRACE("visit AssignCmdNode");
+
     /* 1. Verifica se é um lvalue simples (acesso a variável, ex: x = ...) */
     if (auto *va = dynamic_cast<VarAccessNode *>(node->lvalue))
     {
@@ -230,10 +242,11 @@ void TypeChecker::visit(AssignCmdNode *node)
 
         /* ── b) Avalia o tipo do lado direito (RHS) da atribuição. */
         node->expr->accept(this);
-        auto rhs_type = last_inferred_type;
+        auto rhs_type = last_inferred_type; if(rhs_type) { std::stringstream ss; ss<<"RHS="<<rhs_type->to_string(); TCTRACE(ss.str()); } else { TCTRACE("RHS=<null>"); }
 
         /* ── c) Obtém o tipo do lado esquerdo (LHS) que já está no contexto. */
         auto lhs_type = get_variable_type(va->name);
+        if(lhs_type){ std::stringstream ss; ss<<"LHS(var)="<<lhs_type->to_string(); TCTRACE(ss.str()); } else { TCTRACE("LHS(var)=<null>"); }
 
         /* ── d) Se o tipo do LHS é 'Unknown', realiza a unificação. */
         if (lhs_type->is_unknown())
@@ -264,10 +277,10 @@ void TypeChecker::visit(AssignCmdNode *node)
 
     /* 2. Lida com lvalues mais complexos (ex: p.x = ..., arr[i] = ...) */
     node->lvalue->accept(this);
-    auto lhs_type = last_inferred_type;
+    auto lhs_type = last_inferred_type; if(lhs_type) { std::stringstream ss2; ss2<<"LHS="<<lhs_type->to_string(); TCTRACE(ss2.str()); } else { TCTRACE("LHS=<null>"); }
 
     node->expr->accept(this);
-    auto rhs_type = last_inferred_type;
+    auto rhs_type = last_inferred_type; if(rhs_type) { std::stringstream ss; ss<<"RHS="<<rhs_type->to_string(); TCTRACE(ss.str()); } else { TCTRACE("RHS=<null>"); }
 
     // Permite atribuir `null` a qualquer tipo não primitivo.
     if (rhs_type->is_null() && !lhs_type->is_primitive())
@@ -539,6 +552,8 @@ void TypeChecker::visit(FunCallCmdNode *n)
 
 void TypeChecker::visit(ReturnCmdNode *n)
 {
+    TCTRACE("visit ReturnCmdNode");
+
     if (!current_function_type)
         throw std::runtime_error("'return' fora de função.");
 
@@ -551,14 +566,19 @@ void TypeChecker::visit(ReturnCmdNode *n)
         auto expr = last_inferred_type;
         auto expected = current_function_type->return_types[i];
 
-        if (expected->is_unknown())
-            *expected = *expr;
+        if (!expr || !expected)
+            throw std::runtime_error("Erro de Tipo interno em 'return'.");
+
+        if (expected->is_unknown())            *expected = *expr;
+        else if (expr->is_unknown())           *expr = *expected;
         else if (expr->is_null() && !expected->is_primitive())
-            continue;
+            continue; // permitir null para tipos não primitivos
         else if (expr->to_string() != expected->to_string())
-            throw std::runtime_error("Tipo de retorno " + idx_str(i) + " incompatível (esperado " + expected->to_string() + ", obteve " + expr->to_string() + ").");
+            throw std::runtime_error("Tipo de retorno [" + std::to_string(i) + "] incompatível (esperado "
+                                     + expected->to_string() + ", obteve " + expr->to_string() + ").");
     }
 }
+
 void TypeChecker::visit(UnaryOpNode *node)
 {
     /* 1. Visita o operando ------------------------------------ */
@@ -606,27 +626,19 @@ void TypeChecker::visit(IterateCmdNode *node) { /* TODO */ }
 void TypeChecker::visit(NewExprNode *node)
 {
     TCTRACE("visit NewExprNode");
-
-    // 1) tipo base (ex.: Int, Transition, AFD, etc.)
-    std::shared_ptr<Type> current_type = type_from_node(node->base_type);
-
-    // 2) cada "[]" envolve o tipo em ArrayType;
-    //    se tiver expressão, ela deve ser Int; se for omitida ([]), só envolve.
-    for (auto dim_expr : node->dims)
+    std::shared_ptr<Type> ty = type_from_node(node->base_type);
+    for (Expression* dim : node->dims)
     {
-        if (dim_expr) {
-            dim_expr->accept(this);
-            if (!last_inferred_type || last_inferred_type->to_string() != "Int") {
-                throw std::runtime_error("Erro de Tipo: Dimensões de um array devem ser do tipo Int.");
-            }
+        if (dim)
+        {
+            dim->accept(this);
+            if (!last_inferred_type || last_inferred_type->to_string() != "Int")
+                throw std::runtime_error("Erro de Tipo: Tamanho de array deve ser Int.");
         }
-        current_type = std::make_shared<ArrayType>(current_type);
+        ty = std::make_shared<ArrayType>(ty);
     }
-
-    last_inferred_type = current_type;
+    last_inferred_type = ty;
 }
-
-
 void TypeChecker::visit(FieldAccessNode *node)
 {
     /* avalia o tipo da expressão antes do ponto --------------- */

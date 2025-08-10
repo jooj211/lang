@@ -29,7 +29,7 @@ void yyerror(const char* s);
 "Bool"      { RESET(); return T_TYPE_BOOL; }
 "Char"      { RESET(); return T_TYPE_CHAR; }
 "Float"     { RESET(); return T_TYPE_FLOAT; }
-"Void"      { RESET(); return T_TYPE_VOID; }
+"Void"      { RESET(); return T_TYPE_VOID; } // <<< ADICIONAR
 "null"      { RESET(); return T_NULL; }
 
 [a-z][a-zA-Z0-9_]* { RESET(); yylval.sval = strdup(yytext); return T_ID; }
@@ -37,28 +37,20 @@ void yyerror(const char* s);
 
 [0-9]+\.[0-9]+ { RESET(); yylval.fval = atof(yytext); return T_FLOAT_LITERAL; }
 [0-9]+         { RESET(); yylval.ival = atoi(yytext); return T_INT_LITERAL; }
-'([^'\\]|\\[0-9]{3}|\\.)' {
+'([^'\\]|\\.)' {
     RESET();
-    char c;
-    if (yytext[1] == '\\') {
-        if (yytext[2] >= '0' && yytext[2] <= '9' &&
-            yytext[3] >= '0' && yytext[3] <= '9' &&
-            yytext[4] >= '0' && yytext[4] <= '9') {
-            int d = (yytext[2]-'0')*100 + (yytext[3]-'0')*10 + (yytext[4]-'0');
-            c = (char)d;
-        } else {
-            switch (yytext[2]) {
-                case 'n':  c = '\n'; break;
-                case 't':  c = '\t'; break;
-                case 'r':  c = '\r'; break;
-                case '\\': c = '\\'; break;
-                case '\'': c = '\''; break;
-                case '0':  c = '\0'; break;
-                default:   c = yytext[2]; break;
-            }
+    char c = yytext[1];
+    if (c == '\\') {
+        char e = yytext[2];
+        switch (e) {
+            case 'n':  c = '\n'; break;
+            case 't':  c = '\t'; break;
+            case 'r':  c = '\r'; break;
+            case '\\': c = '\\'; break;
+            case '\'': c = '\''; break;
+            case '0':  c = '\0'; break;
+            default:   c = e;    break; // qualquer outro \x vira 'x'
         }
-    } else {
-        c = yytext[1];
     }
     yylval.cval = c;
     return T_CHAR_LITERAL;

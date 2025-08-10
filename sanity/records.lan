@@ -1,0 +1,10 @@
+data Point { x :: Int; y :: Int; }
+
+main() {
+  p :: Point;
+  p = new Point;
+  p.x = 10;
+  p.y = 32;
+  print p.x + p.y;
+  print '\n';
+}

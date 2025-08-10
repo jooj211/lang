@@ -1,0 +1,76 @@
+
+{- Definições de funções numéricas utilitárias.
+   As seguintes definições tem por objetivo a realização de testes
+   no compilador de Lang e não necessariamente são impementações
+   eficientes para uso.
+-}
+
+guessRoot(x :: Float, a :: Float): Float{
+    if(x < a*a){
+       return guessRoot(x,a/2)[0];
+    }
+    return a;
+}
+
+-- Computa a raiz quadrada de um valor x
+sqrt(x :: Float) : Float {
+    g = guessRoot(x, x/2.0)[0];
+    return sqrtrec(x,g)[0];
+}
+
+sqrtrec(x :: Float, x0 :: Float) : Float {
+    x1 = (x0 + x/x0)/2;
+    diff = x1*x1 - x;
+    if(diff < 0.0){diff = (0.0-1.01) * diff;}
+    if(diff < 0.000001){
+        return x1;
+    }
+    return sqrtrec(x, x1)[0];
+}
+
+-- Computa o logaritmo natural de um valor x.
+ln(x :: Float): Float{
+    dowToOneRec(x,1.0)<a,n>;
+    y = (a - 1.0) / (a + 1.0);
+    k = 0.0;
+    s = 0.0;
+    t = y;
+    iterate(20){
+        s = s + t / (2.0*k + 1.0);
+        t = t * y*y ;
+        k = k + 1.0;
+    }
+    s = 2.0 * s;
+    log = (n-1.0)* 2.302585093 + s;
+    return log;
+}
+
+-- Converte um dado valor a um valor de um dígito e conta
+-- o  número de casas decimais.
+dowToOneRec( n :: Float,  dc :: Float) : Float, Float{
+     if(n == 1.0){
+        return n, dc;
+     }else if((1.0 < n) && (n < 10.0)){
+        return n,dc;
+     }else if(!(!(10.0 < n) && !(n == 10.0))){
+        dowToOneRec(n/10.0,dc+1.0)<n,dc>;
+        return n, dc;
+     }else if(n < 1.0){
+        dowToOneRec(n*10.0,dc-1.0)<n,dc>;
+        return n, dc;
+     }
+     return 0.0, 0.0;
+}
+
+-- Computa o logaritmo de x na base dada.
+lnb(base :: Float, x :: Float) : Float{
+    return ln(x)[0]/ln(base)[0];
+}
+
+main(){
+    log = lnb(10.0, 255.0)[0];
+    print log;
+    print '\n';
+    print sqrt(2.0)[0];
+    print '\n';
+}

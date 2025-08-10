@@ -7,6 +7,9 @@
 #include <cstdio>
 #include <typeinfo>
 #include <sstream>
+#include <vector>
+#include <unordered_set>
+//#define INTERP_TRACE 0
 // [PATCH] Helper: clone primitive values to avoid aliasing when assigning/returning
 static Value* clone_primitive_or_self(Value* v){
     if(auto iv = dynamic_cast<IntValue*>(v))   return new IntValue(iv->value);
@@ -15,6 +18,10 @@ static Value* clone_primitive_or_self(Value* v){
     if(auto cv = dynamic_cast<CharValue*>(v))  return new CharValue(cv->value);
     return v;
 }
+// Call-frame markers to restrict updates to the current function frame
+static std::vector<size_t> g_frame_bases;
+static size_t current_frame_base() { return g_frame_bases.empty() ? 0 : g_frame_bases.back(); }
+
 
 
 static const char* vname(Value* v){
@@ -28,11 +35,14 @@ static const char* vname(Value* v){
     return "Value";
 }
 
-#ifdef INTERP_TRACE
+/*#ifdef INTERP_TRACE
   #define TRACE(msg) do { std::cerr << "[TRACE] " << msg << "\n"; } while(0)
 #else
   #define TRACE(msg) do { } while(0)
-#endif
+#endif */
+
+#define TRACE(msg) do { } while(0)
+
 
 Value *Interpreter::create_default_value(TypeNode *type)
 {
@@ -74,16 +84,13 @@ Value *Interpreter::create_default_value(TypeNode *type, std::set<std::string> &
     else
     { // É um tipo de registro
         std::string type_name = type->user_type_name;
-
-        // ==================================================================
-        // ====> COLOQUE A MENSAGEM DE DEBUG EXATAMENTE AQUI <====
-        // ==================================================================
-        std::cerr << "[DEBUG] Tentando criar valor padrão para o tipo de registro: '" << type_name << "'.\n";
+        
+//         std::cerr << "[DEBUG] Tentando criar valor padrão para o tipo de registro: '" << type_name << "'.\n";
 
         // VERIFICAÇÃO DE RECURSÃO
         if (visited_records.count(type_name))
         {
-            std::cerr << "    └─ DETECTADO CICLO! O tipo '" << type_name << "' já está sendo criado. Retornando 'null' para quebrar a recursão.\n";
+            //std::cerr << "    └─ DETECTADO CICLO! O tipo '" << type_name << "' já está sendo criado. Retornando 'null' para quebrar a recursão.\n";
             return nullptr;
         }
         // ==================================================================
@@ -145,11 +152,17 @@ Value *Interpreter::create_nested_array(TypeNode *base_elem_type,
 // ... (todo o topo do arquivo: destrutor, push/pop_scope, etc. continua igual) ...
 Interpreter::~Interpreter()
 {
-    for (Value *v : value_pool)
-    {
+        // Deduplicate frees to avoid double-delete if the same pointer was pushed twice.
+    std::unordered_set<Value*> seen;
+    for (Value* v : value_pool) {
+        if (!v) continue;
+        if (!seen.insert(v).second) continue; // already deleted
         delete v;
     }
+
+    value_pool.clear();
 }
+
 void Interpreter::push_scope() { memory_stack.emplace_back(); }
 void Interpreter::pop_scope()
 {
@@ -382,10 +395,11 @@ void Interpreter::visit(FunCallNode *node)
         last_value = nullptr;
         return;
     }
-    push_scope();
+    g_frame_bases.push_back(memory_stack.size());
+push_scope();
     for (size_t i = 0; i < func_def->params.size(); ++i)
     {
-        set_variable(func_def->params[i].name, evaluated_args[i], true);
+        set_variable(func_def->params[i].name, clone_primitive_or_self(evaluated_args[i]), true);
     }
     try
     {
@@ -394,20 +408,23 @@ void Interpreter::visit(FunCallNode *node)
     }
     catch (const ReturnSignal &ret)
     {
+
+TRACE("ReturnSignal caught");
+
         if (!ret.values.empty())
         {
-            node->return_index->accept(this);
+            TRACE("before index accept"); node->return_index->accept(this); TRACE("after index accept");
             if (auto idx_val = dynamic_cast<IntValue *>(last_value))
             {
                 if (idx_val->value >= 0 && idx_val->value < ret.values.size())
                 {
-                    do { Value* __rv = ret.values[idx_val->value];
-    if (auto iv = dynamic_cast<IntValue*>(__rv)) last_value = new IntValue(iv->value);
-    else if (auto fv = dynamic_cast<FloatValue*>(__rv)) last_value = new FloatValue(fv->value);
-    else if (auto bv = dynamic_cast<BoolValue*>(__rv)) last_value = new BoolValue(bv->value);
-    else if (auto cv = dynamic_cast<CharValue*>(__rv)) last_value = new CharValue(cv->value);
-    else last_value = __rv;
-    value_pool.push_back(last_value);
+                    do { 
+    Value* __rv = ret.values[idx_val->value];
+    if (auto iv = dynamic_cast<IntValue*>(__rv)) { last_value = new IntValue(iv->value); value_pool.push_back(last_value); }
+    else if (auto fv = dynamic_cast<FloatValue*>(__rv)) { last_value = new FloatValue(fv->value); value_pool.push_back(last_value); }
+    else if (auto bv = dynamic_cast<BoolValue*>(__rv)) { last_value = new BoolValue(bv->value); value_pool.push_back(last_value); }
+    else if (auto cv = dynamic_cast<CharValue*>(__rv)) { last_value = new CharValue(cv->value); value_pool.push_back(last_value); }
+    else { last_value = __rv; /* reuse existing heap object; don't push again */ }
 } while(0);
                 }
                 else
@@ -424,8 +441,11 @@ void Interpreter::visit(FunCallNode *node)
         {
             last_value = nullptr;
         }
-    }
+    
+
+}
     pop_scope();
+    g_frame_bases.pop_back();
 }
 
 void Interpreter::visit(FunCallCmdNode *node)
@@ -448,11 +468,11 @@ void Interpreter::visit(FunCallCmdNode *node)
         throw std::runtime_error("Erro de Execução: Aridade incorreta na chamada de função.");
     }
 
-    push_scope();
-    for (std::size_t i = 0; i < func_def->params.size(); ++i)
-    {
-        set_variable(func_def->params[i].name, evaluated_args[i], true);
-    }
+    g_frame_bases.push_back(memory_stack.size());
+push_scope();
+    for (std::size_t i = 0; i < func_def->params.size(); ++i) {
+    memory_stack.back()[func_def->params[i].name] = clone_primitive_or_self(evaluated_args[i]);
+}
 
     std::vector<Value*> retvals;
     bool did_return = false;
@@ -466,6 +486,7 @@ void Interpreter::visit(FunCallCmdNode *node)
         did_return = true;
     }
     pop_scope();
+    g_frame_bases.pop_back();
 
     if (did_return && node->lvalues.size() > 0 && node->lvalues.size() == retvals.size())
     {
@@ -488,10 +509,10 @@ void Interpreter::visit(FunCallCmdNode *node)
             }
             else
             {
-                set_variable("__tmp_ret", retvals[i], true);
-                AssignCmdNode tmp(node->lvalues[i], new VarAccessNode("__tmp_ret"));
+                set_variable(std::string("__tmp_ret"), retvals[i], true);
+                AssignCmdNode tmp(node->lvalues[i], new VarAccessNode(strdup("__tmp_ret")));
                 this->visit(&tmp);
-                memory_stack.back().erase("__tmp_ret");
+                memory_stack.back().erase(std::string("__tmp_ret"));
             }
         }
     }
@@ -535,11 +556,16 @@ void Interpreter::visit(ReturnCmdNode *node)
 void Interpreter::visit(BlockCmdNode *node)
 {
     push_scope();
-    for (Command *cmd : node->commands)
+    try {
+for (Command *cmd : node->commands)
     {
         cmd->accept(this);
     }
     pop_scope();
+} catch (const ReturnSignal &ret) {
+    pop_scope();
+    throw;
+}
 }
 
 void Interpreter::visit(VarDeclNode *node)
@@ -626,31 +652,35 @@ void Interpreter::visit(AssignCmdNode *node)
 
     // 2. Determina o tipo do L-Value e realiza a atribuição.
 
-    // --- CASO 1: Atribuição a uma variável simples (ex: x = 10) ---
+    // --- CASO 1: Atribuição a uma variável simples (ex: x = 10) ---    // --- CASO 1: Atribuição a uma variável simples (ex: x = 10) ---
     if (auto *va = dynamic_cast<VarAccessNode *>(node->lvalue))
     {
-        // [PATCH] evaluate RHS once
-        node->expr->accept(this);
-        Value *rhs_value = last_value;
-
-        // [PATCH] if not in current scope, create local variable (shadow outer), cloning primitives
-        bool in_current_scope = (!memory_stack.empty() && memory_stack.back().count(va->name) > 0);
-        if (!in_current_scope)
-        {
-            if (auto iv = dynamic_cast<IntValue*>(rhs_value))       set_variable(va->name, new IntValue(iv->value), true);
-            else if (auto fv = dynamic_cast<FloatValue*>(rhs_value)) set_variable(va->name, new FloatValue(fv->value), true);
-            else if (auto bv = dynamic_cast<BoolValue*>(rhs_value))  set_variable(va->name, new BoolValue(bv->value), true);
-            else if (auto cv = dynamic_cast<CharValue*>(rhs_value))  set_variable(va->name, new CharValue(cv->value), true);
-            else                                                     set_variable(va->name, rhs_value, true);
-            return;
+    // Frame-aware assignment: update within current function frame if name exists; otherwise declare local.
+    auto has_in_current_frame = [&](const std::string &name)->bool {
+        size_t base = current_frame_base();
+        for (int ii=(int)memory_stack.size()-1; ii >= (int)base; --ii) {
+            if (memory_stack[ii].count(name)) return true;
         }
+        return false;
+    };
 
-        // [PATCH] otherwise update in innermost scope
+    if (has_in_current_frame(va->name))
+    {
         update_variable(va->name, rhs_value);
-        return;
     }
+    else
+    {
+        Value *v = rhs_value;
+        if (auto iv = dynamic_cast<IntValue*>(v))       v = new IntValue(iv->value);
+        else if (auto fv = dynamic_cast<FloatValue*>(v)) v = new FloatValue(fv->value);
+        else if (auto bv = dynamic_cast<BoolValue*>(v))  v = new BoolValue(bv->value);
+        else if (auto cv = dynamic_cast<CharValue*>(v))  v = new CharValue(cv->value);
+        memory_stack.back()[va->name] = v;
+        value_pool.push_back(v);
+    }
+    return;
+}
 
-    // --- CASO 2: Atribuição a um campo de registro (ex: last.next = no) ---
     else if (auto *fa = dynamic_cast<FieldAccessNode *>(node->lvalue))
     {
         // a. Avalia a expressão antes do ponto (ex: 'last') para obter o RecordValue.
@@ -710,6 +740,7 @@ void Interpreter::visit(AssignCmdNode *node)
         else if (auto bv = dynamic_cast<BoolValue*>(v))  v = new BoolValue(bv->value);
         else if (auto cv = dynamic_cast<CharValue*>(v))  v = new CharValue(cv->value);
         arr_val->elements[index] = v;
+        if (v==rhs_value) { /* composite ptr reused */ } else { value_pool.push_back(v); }
     }
     
     // --- ERRO: Tipo de l-value não suportado ---
@@ -769,28 +800,57 @@ void Interpreter::visit(IfCmdNode *node)
 void Interpreter::visit(IterateCmdNode *node)
 {
     node->condition->accept(this);
-    auto cv = dynamic_cast<IntValue *>(last_value);
-    if (!cv)
-        return;
-    int n = cv->value;
-    bool hlv = !node->loop_variable.empty();
-    if (hlv)
-        push_scope();
-    for (int i = 0; i < n; ++i)
-    {
-        if (hlv)
-        {
-            Value *lvv = new IntValue(i);
-            value_pool.push_back(lvv);
-            set_variable(node->loop_variable, lvv, true);
+    Value *cond = last_value;
+    bool has_loop_var = !node->loop_variable.empty();
+
+    auto bind_loop_var_int = [&](int val) {
+        if (!has_loop_var) return;
+        auto &curr = memory_stack.back();
+        auto it = curr.find(node->loop_variable);
+        if (it == curr.end()) {
+            Value *v = new IntValue(val);
+            curr[node->loop_variable] = v;
+            value_pool.push_back(v);
+        } else {
+            if (auto iv = dynamic_cast<IntValue*>(it->second)) iv->value = val;
+            else {
+                Value *v = new IntValue(val);
+                curr[node->loop_variable] = v;
+                value_pool.push_back(v);
+            }
         }
-        node->body->accept(this);
+    };
+
+    auto bind_loop_var_value = [&](Value *elem) {
+        if (!has_loop_var) return;
+        auto &curr = memory_stack.back();
+        Value *bind = elem;
+        if (auto iv = dynamic_cast<IntValue*>(elem))       { bind = new IntValue(iv->value); value_pool.push_back(bind); }
+        else if (auto fv = dynamic_cast<FloatValue*>(elem)) { bind = new FloatValue(fv->value); value_pool.push_back(bind); }
+        else if (auto bv = dynamic_cast<BoolValue*>(elem))  { bind = new BoolValue(bv->value); value_pool.push_back(bind); }
+        else if (auto cv = dynamic_cast<CharValue*>(elem))  { bind = new CharValue(cv->value); value_pool.push_back(bind); }
+        curr[node->loop_variable] = bind;
+    };
+
+    if (auto *cv = dynamic_cast<IntValue *>(cond)) {
+        int n = cv->value;
+        for (int i = 0; i < n; ++i) {
+            bind_loop_var_int(i);
+            node->body->accept(this);
+        }
+        return;
     }
-    if (hlv)
-        pop_scope();
+    if (auto *arr = dynamic_cast<ArrayValue *>(cond)) {
+        int n = (int)arr->elements.size();
+        for (int i = 0; i < n; ++i) {
+            bind_loop_var_value(arr->elements[i]);
+            node->body->accept(this);
+        }
+        return;
+    }
+    return;
 }
-void Interpreter::visit(IntLiteral *node)
-{
+void Interpreter::visit(IntLiteral *node){ TRACE(std::string("IntLiteral ")+std::to_string(node->value));
     last_value = new IntValue(node->value);
     value_pool.push_back(last_value);
 }
@@ -799,8 +859,7 @@ void Interpreter::visit(FloatLiteralNode *node)
     last_value = new FloatValue(node->value);
     value_pool.push_back(last_value);
 }
-void Interpreter::visit(CharLiteralNode *node)
-{
+void Interpreter::visit(CharLiteralNode *node){ TRACE(std::string("CharLiteral ")+(char)node->value);
     last_value = new CharValue(node->value);
     value_pool.push_back(last_value);
 }

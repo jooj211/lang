@@ -21,20 +21,20 @@ mkAutomata(numStates :: Int):AFD{
    return m;
 }
 
-setFinal(m :: ADF, st :: Int){
+setFinal(m :: AFD, st :: Int){
     m.numt[st] = 0 - m.numt[st];
 }
 
-isFinal(m :: ADF, st :: Int): Bool{
+isFinal(m :: AFD, st :: Int): Bool{
     return  m.numt[st] < 0;
 }
 
-setNumTransitions(m :: ADF, st :: Int, n :: Int){
+setNumTransitions(m :: AFD, st :: Int, n :: Int){
     m.st[st] = new Transition[n];
     m.numt[st] = n+1;
 }
 
-addTransition(m :: ADF, st :: Int, a :: Char, d :: Int){
+addTransition(m :: AFD, st :: Int, a :: Char, d :: Int){
     i = 0;
     add = true;
     iterate(abs(m.numt[st])[0]-1){

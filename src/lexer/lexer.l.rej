@@ -1,0 +1,28 @@
+diff a/src/lexer/lexer.l b/src/lexer/lexer.l	(rejected hunks)
+@@ -37,8 +37,24 @@ void yyerror(const char* s);
+ 
+ [0-9]+\.[0-9]+ { RESET(); yylval.fval = atof(yytext); return T_FLOAT_LITERAL; }
+ [0-9]+         { RESET(); yylval.ival = atoi(yytext); return T_INT_LITERAL; }
+-'([^'\\]|\\.)' { RESET(); yylval.cval = yytext[1];    return T_CHAR_LITERAL; }
+-
++'([^'\\]|\\.)' {
++    RESET();
++    char c = yytext[1];
++    if (c == '\\') {
++        char e = yytext[2];
++        switch (e) {
++            case 'n':  c = '\n'; break;
++            case 't':  c = '\t'; break;
++            case 'r':  c = '\r'; break;
++            case '\\': c = '\\'; break;
++            case '\'': c = '\''; break;
++            case '0':  c = '\0'; break;
++            default:   c = e;    break; // qualquer outro \x vira 'x'
++        }
++    }
++    yylval.cval = c;
++    return T_CHAR_LITERAL;
++}
+ "::"   { RESET(); return T_COLON_COLON; }
+ "&&"   { RESET(); return T_AND; }
+ "=="   { RESET(); return T_EQ; }

@@ -5,10 +5,13 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
+#include <fstream>
 
 #include "typecheck/TypeChecker.hpp"
 #include "ast/ProgramNode.hpp"
 #include "interpreter/Interpreter.hpp"
+#include "codegen/SourceGenPython.hpp"
+#include "codegen/JasminGen.hpp"
 
 // Símbolos gerados por Flex/Bison
 extern FILE *yyin;
@@ -21,6 +24,9 @@ extern bool parse_error_detected;
 enum class CompilerAction
 {
     SYNTACTIC_ANALYSIS, // Para a flag -syn
+    TYPECHECK,          // Para a flag -t
+    SRCGEN,             // Para a flag -src
+    JASMINGEN,          // Para a flag -genc
     INTERPRET           // Para a flag -i
 };
 
@@ -33,11 +39,16 @@ static void usage(const char *exe)
               << "  --debug  Habilita o yydebug para traço do parser.\n\n"
               << "Diretivas disponíveis:\n"
               << "  -syn     Executa apenas a análise sintática e retorna 'accept' ou 'reject'.\n"
+              << "  -t       Executa apenas a análise de tipos e retorna 'accept' ou 'reject'.\n"
+              << "  -src     Gera código em Python para o programa. Use -o para salvar.\n"
+              << "  -gen     Gera código Jasmin (.j) para JVM. Use -o para salvar.\n"
               << "  -i       Interpreta o programa após a checagem de tipos.\n";
 }
 
 int main(int argc, char *argv[])
 {
+    const char* out_path = nullptr;
+
     bool use_fake = false;
     bool enable_debug = false;
 
@@ -53,7 +64,8 @@ int main(int argc, char *argv[])
         {
             use_fake = true;
         }
-        else if (std::strcmp(argv[idx], "--debug") == 0)
+        
+else if (std::strcmp(argv[idx], "--debug") == 0)
         {
             enable_debug = true;
         }
@@ -62,6 +74,13 @@ int main(int argc, char *argv[])
             break;
         }
         ++idx;
+    }
+
+    // Procura por -o <arquivo> após a diretiva e antes do nome do arquivo
+    for (int k = 2; k+1 < argc; ++k) {
+        if (std::strcmp(argv[k], "-o") == 0) {
+            out_path = argv[k+1];
+        }
     }
 
     // Se estiver em modo fake, defina fake argv antes de mais nada
@@ -97,6 +116,18 @@ int main(int argc, char *argv[])
     {
         action = CompilerAction::SYNTACTIC_ANALYSIS;
     }
+    else if (std::strcmp(argv[1], "-t") == 0)
+    {
+        action = CompilerAction::TYPECHECK;
+    }
+    else if (std::strcmp(argv[1], "-src") == 0)
+    {
+        action = CompilerAction::SRCGEN;
+    }
+    else if (std::strcmp(argv[1], "-gen") == 0)
+    {
+        action = CompilerAction::JASMINGEN;
+    }
     else if (std::strcmp(argv[1], "-i") == 0)
     {
         action = CompilerAction::INTERPRET;
@@ -108,8 +139,26 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    std::string filename = argv[2];
-
+    
+    // Determina o arquivo de entrada ignorando flags (-syn, -t, -src, -i, -o <arq>, --test, --debug)
+    std::string filename;
+    {
+        bool skip_next = false;
+        for (int k = 1; k < argc; ++k) {
+            if (skip_next) { skip_next = false; continue; }
+            std::string argk = argv[k];
+            if (argk == "--test" || argk == "--debug") continue;
+            if (argk == "-syn" || argk == "-t" || argk == "-src" || argk == "-i") continue;
+            if (argk == "-o") { skip_next = true; continue; }
+            // considera este como potencial filename
+            filename = argk;
+        }
+    }
+    if (filename.empty()) {
+        std::cerr << "Erro: Caminho do arquivo de entrada não informado." << std::endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
     // Abre arquivo
     yyin = std::fopen(filename.c_str(), "r");
     if (!yyin)
@@ -132,6 +181,69 @@ int main(int argc, char *argv[])
     if (action == CompilerAction::SYNTACTIC_ANALYSIS)
     {
         std::cout << "accept" << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    // Ação de geração de código-fonte (Python)
+    if (action == CompilerAction::SRCGEN)
+    {
+        try
+        {
+            // checagem de tipos antes de gerar
+            TypeChecker tc;
+            tc.check(ast_root);
+            SourceGenPython gen;
+            if (out_path) {
+                std::ofstream ofs(out_path);
+                gen.generate(ast_root, ofs);
+            } else {
+                gen.generate(ast_root, std::cout);
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Erro: " << e.what() << '\n';
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
+    }
+    // Ação de geração de Jasmin (.j)
+    if (action == CompilerAction::JASMINGEN)
+    {
+        try
+        {
+            TypeChecker tc;
+            tc.check(ast_root);
+            JasminGen gen;
+            if (out_path) {
+                std::ofstream ofs(out_path);
+                gen.generate(ast_root, ofs);
+            } else {
+                gen.generate(ast_root, std::cout);
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Erro: " << e.what() << '\n';
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
+    }
+
+
+    // Ação de análise de tipos apenas
+    if (action == CompilerAction::TYPECHECK)
+    {
+        try
+        {
+            TypeChecker tc;
+            tc.check(ast_root);
+            std::cout << "accept" << std::endl;
+        }
+        catch (const std::exception &)
+        {
+            std::cout << "reject" << std::endl;
+        }
         return EXIT_SUCCESS;
     }
 

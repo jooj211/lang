@@ -15733,3 +15733,2289 @@ Stack now 0 1 3
 Stack now 0 1 3
 Cleanup: popping token "end of file" ()
 Cleanup: popping nterm program ()
+[TC] visit AssignCmdNode
+[TC] visit NewExprNode
+[TC] RHS=AFD
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] LHS=Array[Array[Transition]]
+[TC] visit NewExprNode
+[TC] RHS=Array[Array[Transition]]
+[TC] visit AssignCmdNode
+[TC] LHS=Array[Int]
+[TC] visit NewExprNode
+[TC] RHS=Array[Int]
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] LHS=Int
+[TC] RHS=Int
+[TC] visit AssignCmdNode
+[TC] LHS=Int
+[TC] RHS=Int
+[TC] visit ReturnCmdNode
+[TC] visit AssignCmdNode
+[TC] LHS=Int
+[TC] RHS=Int
+[TC] visit ReturnCmdNode
+[TC] visit AssignCmdNode
+[TC] LHS=Array[Transition]
+[TC] visit NewExprNode
+[TC] RHS=Array[Transition]
+[TC] visit AssignCmdNode
+[TC] LHS=Int
+[TC] RHS=Int
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] RHS=Bool
+[TC] LHS(var)=‹unknown›
+[TC] visit ReturnCmdNode
+[TC] visit ReturnCmdNode
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=‹unknown›
+[TC] visit ReturnCmdNode
+[TC] visit ReturnCmdNode
+[TC] visit ReturnCmdNode
+[TC] visit ReturnCmdNode
+[TC] visit AssignCmdNode
+[TC] RHS=AFD
+[TC] LHS(var)=‹unknown›
+[TC] visit ReturnCmdNode
+[TC] visit AssignCmdNode
+[TC] RHS=AFD
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] visit NewExprNode
+[TC] RHS=Array[Char]
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=‹unknown›
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=Int
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] LHS=Char
+[TC] RHS=Char
+[TC] visit AssignCmdNode
+[TC] RHS=Int
+[TC] LHS(var)=Int
+[TC] fun abs returns [Int]
+[TC] fun addTransition returns []
+[TC] fun delta returns [Int]
+[TC] fun isFinal returns [Bool]
+[TC] fun main returns []
+[TC] fun mkAutomata returns [AFD]
+[TC] fun myAFD returns [AFD]
+[TC] fun printAutomata returns []
+[TC] fun runAFD returns [Int]
+[TC] fun runAFDHelper returns [Int]
+[TC] fun setFinal returns []
+[TC] fun setNumTransitions returns []
+[TRACE] CallCmd main
+[TRACE] CallExpr myAFD
+[TRACE] CallExpr mkAutomata
+[TRACE] IntLiteral 3
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'AFD'.
+[TRACE] New record: Record
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[TRACE] VarAccess numStates
+[TRACE] VarValue Int
+[TRACE] New array (com nullptrs) size=3
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[TRACE] VarAccess numStates
+[TRACE] VarValue Int
+[TRACE] New primitive array size=3
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] IntLiteral 0
+[TRACE] VarAccess numStates
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 1
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 1
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess numStates
+[TRACE] VarValue Int
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] IntLiteral 0
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] CallCmd setNumTransitions
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 0
+[TRACE] IntLiteral 2
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] New array (com nullptrs) size=2
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] CallCmd addTransition
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 0
+[TRACE] CharLiteral a
+[TRACE] IntLiteral 0
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'Transition'.
+[TRACE] New record: Record
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] VarAccess a
+[TRACE] VarValue Char
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess d
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] CallCmd addTransition
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 0
+[TRACE] CharLiteral b
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'Transition'.
+[TRACE] New record: Record
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] VarAccess a
+[TRACE] VarValue Char
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess d
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] CallCmd setNumTransitions
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 2
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] New array (com nullptrs) size=2
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] CallCmd addTransition
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 1
+[TRACE] CharLiteral a
+[TRACE] IntLiteral 0
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'Transition'.
+[TRACE] New record: Record
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] VarAccess a
+[TRACE] VarValue Char
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess d
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] CallCmd addTransition
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 1
+[TRACE] CharLiteral b
+[TRACE] IntLiteral 2
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'Transition'.
+[TRACE] New record: Record
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] VarAccess a
+[TRACE] VarValue Char
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess d
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] CallCmd setNumTransitions
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 2
+[TRACE] IntLiteral 2
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] New array (com nullptrs) size=2
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] CallCmd addTransition
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 2
+[TRACE] CharLiteral a
+[TRACE] IntLiteral 2
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'Transition'.
+[TRACE] New record: Record
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] VarAccess a
+[TRACE] VarValue Char
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess d
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] CallCmd addTransition
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 2
+[TRACE] CharLiteral b
+[TRACE] IntLiteral 2
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op==
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: null
+[TRACE] VarAccess add
+[TRACE] VarValue Bool
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[DEBUG] Tentando criar valor padrão para o tipo de registro: 'Transition'.
+[TRACE] New record: Record
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] VarAccess a
+[TRACE] VarValue Char
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] VarAccess d
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess i
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] CallCmd setFinal
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] IntLiteral 2
+[TRACE] BinaryOp op=-
+[TRACE] IntLiteral 0
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] visit NewExprNode
+[TRACE] NewExpr start
+[TRACE] IntLiteral 4
+[TRACE] New primitive array size=4
+[TRACE] IntLiteral 0
+[TRACE] CharLiteral a
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 0
+[TRACE] CharLiteral b
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 1
+[TRACE] CharLiteral b
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 2
+[TRACE] CharLiteral a
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 3
+[TRACE] CallExpr runAFD
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 4
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'start' value: Int
+[TRACE] IntLiteral 0
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=-
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=-
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] VarAccess stop
+[TRACE] VarValue Int
+2[TRACE] CharLiteral  
+ [TRACE] CallExpr isFinal
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] VarAccess stop
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=<
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] IntLiteral 0
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+true[TRACE] CharLiteral 
+
+
+[TRACE] CharLiteral a
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 0
+[TRACE] CharLiteral b
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 1
+[TRACE] CharLiteral a
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 2
+[TRACE] CharLiteral b
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 3
+[TRACE] CallExpr runAFD
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] VarAccess str
+[TRACE] VarValue Array
+[TRACE] IntLiteral 4
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'start' value: Int
+[TRACE] IntLiteral 0
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] CallExpr runAFDHelper
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] CallExpr delta
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] visit ArrayAccessNode
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] Array elem: Char
+[TRACE] BinaryOp op=&
+[TRACE] BinaryOp op=n
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] IntLiteral 0
+[TRACE] BinaryOp op=-
+[TRACE] CallExpr abs
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] BinaryOp op=<
+[TRACE] IntLiteral 0
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] VarAccess n
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] BinaryOp op==
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'sym' value: Char
+[TRACE] VarAccess c
+[TRACE] VarValue Char
+[TRACE] FieldAccess start
+[TRACE] visit ArrayAccessNode
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'st' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess k
+[TRACE] VarValue Int
+[TRACE] Array elem: Record
+[TRACE] Field 'dest' value: Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] BinaryOp op=+
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] IntLiteral 1
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess s
+[TRACE] VarValue Array
+[TRACE] BinaryOp op=<
+[TRACE] VarAccess p
+[TRACE] VarValue Int
+[TRACE] VarAccess sz
+[TRACE] VarValue Int
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+[TRACE] VarAccess stop
+[TRACE] VarValue Int
+1[TRACE] CharLiteral  
+ [TRACE] CallExpr isFinal
+[TRACE] VarAccess afd
+[TRACE] VarValue Record
+[TRACE] VarAccess stop
+[TRACE] VarValue Int
+[TRACE] BinaryOp op=<
+[TRACE] visit ArrayAccessNode
+[TRACE] FieldAccess start
+[TRACE] VarAccess m
+[TRACE] VarValue Record
+[TRACE] Field 'numt' value: Array
+[TRACE] Array expr value: Array
+[TRACE] VarAccess st
+[TRACE] VarValue Int
+[TRACE] Array elem: Int
+[TRACE] IntLiteral 0
+[TRACE] ReturnSignal caught
+[TRACE] before index accept
+[TRACE] IntLiteral 0
+[TRACE] after index accept
+false[TRACE] CharLiteral 
+
+
