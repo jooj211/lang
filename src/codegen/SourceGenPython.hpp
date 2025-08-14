@@ -99,4 +99,7 @@ private:
 
     // current function: for future use
     std::string cur_fun_;
+
+    // function name -> return types
+    std::unordered_map<std::string, std::vector<TypeNode*>> fun_returns_;
 };

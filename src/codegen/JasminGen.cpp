@@ -102,8 +102,12 @@ void JasminGen::emit(const std::string& s){ out_ << s; }
 std::string JasminGen::type_desc(TypeNode* t){
     if (!t) return "V";
     if (t->is_array){
-        if (t->element_type && t->element_type->is_primitive && t->element_type->p_type == Primitive::INT) return "[I";
-        return "[Ljava/lang/Object;";
+        int dims = 0;
+        TypeNode* e = t;
+        while (e && e->is_array){ ++dims; e = e->element_type; }
+        std::string prefix(dims, '[');
+        if (e && e->is_primitive && e->p_type == Primitive::INT) return prefix + "I";
+        return prefix + "Ljava/lang/Object;";
     }
     if (t->is_primitive){
         switch(t->p_type){
@@ -113,10 +117,8 @@ std::string JasminGen::type_desc(TypeNode* t){
             case Primitive::BOOL:  return "Z";
             case Primitive::VOID:  return "V";
         }
-    } else {
-        return "Ljava/util/HashMap;";
     }
-    return "Ljava/lang/Object;";
+    return "Ljava/util/HashMap;";
 }
 
 std::string JasminGen::type_desc_prim(Primitive k){
@@ -127,7 +129,7 @@ std::string JasminGen::type_desc_prim(Primitive k){
         case Primitive::CHAR: return "C";
         case Primitive::VOID: return "V";
     }
-    return "Ljava/lang/Object;";
+    return "Ljava/util/HashMap;";
 }
 
 void JasminGen::open_class(){
@@ -266,13 +268,14 @@ std::string JasminGen::expr_desc(Expression* e){
         if (itf != fun_sigs_.end()) return itf->second.ret_desc;
         return "I";
     }
-    if (auto ne = dynamic_cast<NewExprNode*>(e)){
+    if (auto ne = dynamic_cast<NewExprNode*>(e)) {
         if (ne->base_type && !ne->base_type->is_primitive && !ne->base_type->is_array) return "Ljava/util/HashMap;";
-        return "[I";
+        bool is_int = (ne->base_type && ne->base_type->is_primitive && ne->base_type->p_type == Primitive::INT);
+        return is_int ? "[I" : "[Ljava/lang/Object;";
     }
     if (dynamic_cast<UnaryOpNode*>(e)) return "I";
     if (dynamic_cast<BinaryOpNode*>(e)) return "I";
-    return "Ljava/lang/Object;";
+    return "Ljava/util/HashMap;";
 }
 
 // Helpers for records
@@ -593,15 +596,27 @@ void JasminGen::visit(FunCallCmdNode* node){
 }
 
 
+
 void JasminGen::visit(NewExprNode* node){
   TRACE_LN("enter JasminGen::visit");
 
+    // Handle array allocations (may have unspecified dimensions like [] [N]).
     if (node && !node->dims.empty()){
-        node->dims[0]->accept(this);
-        bool is_int = true;
-        if (node->base_type && node->base_type->element_type){
-            is_int = (node->base_type->element_type->is_primitive && node->base_type->element_type->p_type == Primitive::INT);
+        // Find a specified dimension to use for the outer allocation.
+        Expression* sz = nullptr;
+        for (int i = (int)node->dims.size() - 1; i >= 0; --i){
+            if (node->dims[i]) { sz = node->dims[i]; break; }
         }
+        if (!sz){
+            // No dimension explicitly provided: allocate zero-length as a safe default.
+            // (Caller code is expected to assign inner arrays later.)
+            push_int(0);
+        } else {
+            sz->accept(this);
+        }
+
+        // Decide array kind from the *atomic* base type (new_expression uses atomic_type).
+        bool is_int = (node->base_type && node->base_type->is_primitive && node->base_type->p_type == Primitive::INT);
         if (is_int){
             emit_line("  newarray int");
         } else {
@@ -609,6 +624,8 @@ void JasminGen::visit(NewExprNode* node){
         }
         return;
     }
+
+    // Handle 'new <RecordType>' allocation (records are represented as HashMap).
     if (node && node->base_type && !node->base_type->is_primitive && !node->base_type->is_array){
         emit_line("  new java/util/HashMap");
         emit_line("  dup");
@@ -618,12 +635,15 @@ void JasminGen::visit(NewExprNode* node){
     emit_line("  aconst_null");
 }
 
+
 void JasminGen::visit(FieldAccessNode* node){
   TRACE_LN("enter JasminGen::visit");
 
     std::string fdesc = field_desc_from_record(node->record_expr, node->field_name);
     node->record_expr->accept(this);
-    emit_line("  ldc \"" + node->field_name + "\"");
+    
+    emit_line("  checkcast java/util/HashMap");
+emit_line("  ldc \"" + node->field_name + "\"");
     emit_line("  invokevirtual java/util/HashMap/get(Ljava/lang/Object;)Ljava/lang/Object;");
     if (fdesc == "I"){
         emit_line("  checkcast java/lang/Integer");
@@ -637,13 +657,22 @@ void JasminGen::visit(FieldAccessNode* node){
     } else if (fdesc == "C"){
         emit_line("  checkcast java/lang/Character");
         emit_line("  invokevirtual java/lang/Character/charValue()C");
-    } else if (!fdesc.empty() && (fdesc[0]=='[' || fdesc[0]=='L')){
-        emit_line("  checkcast " + fdesc);
+    
+    } else if (!fdesc.empty()){
+        if (fdesc[0] == 'L'){
+            // Convert descriptor 'Ljava/lang/Foo;' -> 'java/lang/Foo' for Jasmin checkcast
+            std::string cname = fdesc.substr(1, fdesc.size()-2);
+            emit_line("  checkcast " + cname);
+        } else if (fdesc[0] == '['){
+            // Arrays may be used with descriptor form (e.g., [I, [Ljava/lang/Object;)
+            emit_line("  checkcast " + fdesc);
+        }
     }
 }
 
+
 void JasminGen::visit(PrintCmd* node){
-    emit_line("  getstatic java/lang/System/out Ljava/io/PrintStream;");
+    // Evaluate expression first
     std::string d;
     if (auto fa = dynamic_cast<FieldAccessNode*>(node->expr)){
         d = field_desc_from_record(fa->record_expr, fa->field_name);
@@ -651,6 +680,7 @@ void JasminGen::visit(PrintCmd* node){
         d = expr_desc(node->expr);
     }
     node->expr->accept(this);
+    // Ensure a String on stack
     if (d == "I"){
         emit_line("  invokestatic java/lang/String/valueOf(I)Ljava/lang/String;");
     } else if (d == "F"){
@@ -662,8 +692,12 @@ void JasminGen::visit(PrintCmd* node){
     } else {
         emit_line("  invokestatic java/lang/String/valueOf(Ljava/lang/Object;)Ljava/lang/String;");
     }
+    // Now load System.out and swap so that (objectref, arg) are in the right order
+    emit_line("  getstatic java/lang/System/out Ljava/io/PrintStream;");
+    emit_line("  swap");
     emit_line("  invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
 }
+
 
 void JasminGen::visit(ReadCmdNode* node){
     auto gen_read = [&](const std::string& kind){
@@ -985,25 +1019,35 @@ void JasminGen::visit(BinaryOpNode* node){
         case '/': emit_line("  idiv"); break;
         case '%': emit_line("  irem"); break;
         case '=': {
-            int Lt = new_label(), Lend = new_label();
-            emit_line("  if_icmpeq L" + std::to_string(Lt));
-            push_int(0);
-            emit_line("  goto L" + std::to_string(Lend));
-            emit_line("L" + std::to_string(Lt) + ":");
-            push_int(1);
-            emit_line("L" + std::to_string(Lend) + ":");
-            break;
-        }
-        case 'n': { // !=
-            int Lt = new_label(), Lend = new_label();
-            emit_line("  if_icmpne L" + std::to_string(Lt));
-            push_int(0);
-            emit_line("  goto L" + std::to_string(Lend));
-            emit_line("L" + std::to_string(Lt) + ":");
-            push_int(1);
-            emit_line("L" + std::to_string(Lend) + ":");
-            break;
-        }
+    int Lt = new_label(), Lend = new_label();
+    std::string dl = expr_desc(node->left);
+    std::string dr = expr_desc(node->right);
+    bool l_intlike = (dl=="I" || dl=="Z" || dl=="C");
+    bool r_intlike = (dr=="I" || dr=="Z" || dr=="C");
+    bool use_icmp = l_intlike && r_intlike;
+    emit_line(std::string("  ") + (use_icmp ? "if_icmpeq" : "if_acmpeq") + " L" + std::to_string(Lt));
+    push_int(0);
+    emit_line("  goto L" + std::to_string(Lend));
+    emit_line("L" + std::to_string(Lt) + ":");
+    push_int(1);
+    emit_line("L" + std::to_string(Lend) + ":");
+    break;
+}
+        case 'n': {
+    int Lt = new_label(), Lend = new_label();
+    std::string dl = expr_desc(node->left);
+    std::string dr = expr_desc(node->right);
+    bool l_intlike = (dl=="I" || dl=="Z" || dl=="C");
+    bool r_intlike = (dr=="I" || dr=="Z" || dr=="C");
+    bool use_icmp = l_intlike && r_intlike;
+    emit_line(std::string("  ") + (use_icmp ? "if_icmpne" : "if_acmpne") + " L" + std::to_string(Lt));
+    push_int(0);
+    emit_line("  goto L" + std::to_string(Lend));
+    emit_line("L" + std::to_string(Lt) + ":");
+    push_int(1);
+    emit_line("L" + std::to_string(Lend) + ":");
+    break;
+}
         case '<': {
             int Lt = new_label(), Lend = new_label();
             emit_line("  if_icmplt L" + std::to_string(Lt));
@@ -1024,36 +1068,16 @@ void JasminGen::visit(BinaryOpNode* node){
 void JasminGen::visit(TypeNode* /*node*/){ }
 void JasminGen::visit(NullLiteralNode* /*node*/){ emit_line("  aconst_null"); }
 
+
 void JasminGen::visit(ArrayAccessNode* node){
   TRACE_LN("enter JasminGen::visit");
-
-    // Special-case: f(...)[0] where f returns scalar -> identity
-    if (auto fc = dynamic_cast<FunCallNode*>(node->array_expr)){
-        auto itf = fun_sigs_.find(fc->name);
-        if (itf != fun_sigs_.end()){
-            std::string rd = itf->second.ret_desc;
-            if (!rd.empty() && rd[0] != '['){
-                node->array_expr->accept(this);
-                return;
-            }
-        }
-    }
-    bool is_int_array = true;
-    if (auto va = dynamic_cast<VarAccessNode*>(node->array_expr)){
-        auto it = locals_.find(va->name);
-        if (it != locals_.end()){
-            is_int_array = (it->second.desc == "[I");
-        }
-    } else if (auto fc2 = dynamic_cast<FunCallNode*>(node->array_expr)){
-        auto itf = fun_sigs_.find(fc2->name);
-        if (itf != fun_sigs_.end()){
-            std::string rd = itf->second.ret_desc;
-            if (!rd.empty() && rd[0]=='['){
-                is_int_array = (rd == "[I");
-            }
-        }
-    }
-    node->array_expr->accept(this);
-    node->index_expr->accept(this);
-    emit_line(std::string("  ") + (is_int_array ? "iaload" : "aaload"));
+  // Evaluate array reference and index
+  node->array_expr->accept(this);
+  node->index_expr->accept(this);
+  // Decide opcode by descriptor of the array expression
+  std::string arrd = expr_desc(node->array_expr);
+  // int[] -> "[I", int[][] -> "[[I" etc.
+  bool use_iaload = (!arrd.empty() && arrd[0]=='[' && arrd.back()=='I');
+  emit_line(std::string("  ") + (use_iaload ? "iaload" : "aaload"));
 }
+
